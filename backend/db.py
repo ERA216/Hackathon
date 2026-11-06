@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS inspections (
     id INTEGER PRIMARY KEY AUTOINCREMENT, company_id INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, author TEXT,
     equipment_id TEXT NOT NULL, state TEXT NOT NULL CHECK (state IN ('ok', 'remark', 'problem')), note TEXT, incident_id INTEGER, is_demo INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, company_name TEXT NOT NULL,
     city TEXT, note TEXT, company_id INTEGER
@@ -246,6 +247,17 @@ def add_inspection(equipment_id: str, state: str, note: str, author: str, incide
 def inspections(limit: int = 500) -> list[dict]:
     with connect() as c:
         return [dict(r) for r in c.execute("SELECT * FROM inspections WHERE company_id=? ORDER BY created_at DESC LIMIT ?", (current_company(), limit))]
+
+
+def get_meta(key: str) -> Optional[str]:
+    with connect() as c:
+        r = c.execute("SELECT value FROM meta WHERE key=?", (key,)).fetchone()
+    return r["value"] if r else None
+
+
+def set_meta(key: str, value: str) -> None:
+    with connect() as c:
+        c.execute("INSERT INTO meta(key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, value))
 
 
 def set_status(incident_id: int, status: str, who: Optional[str] = None, resolution: Optional[str] = None,

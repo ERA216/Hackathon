@@ -24,7 +24,7 @@ DEFAULT_MODELS = {
 }
 LLM_MODEL = os.getenv("LLM_MODEL", "") or DEFAULT_MODELS.get(LLM_PROVIDER, "")
 # если модель недоступна (404), пробуем следующую
-GEMINI_FALLBACK_MODELS = ["gemini-flash-lite-latest", "gemini-2.5-flash-lite", "gemini-flash-latest", "gemini-2.5-flash"]
+GEMINI_FALLBACK_MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"]  # 2.5-модели Google больше не выдаёт новым пользователям
 LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", "12"))      # на одну попытку
 LLM_TOTAL_BUDGET = float(os.getenv("LLM_TOTAL_BUDGET", "30"))  # на весь перебор моделей и ключей
 LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))

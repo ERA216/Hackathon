@@ -251,7 +251,7 @@ def test_timeout_switches_model():
     finally:
         config.LLM_PROVIDER, config.GEMINI_API_KEY, config.LLM_MODEL, requests.post = saved
         llm._working.clear()
-    assert calls == ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"]
+    assert calls == ["gemini-flash-lite-latest", "gemini-flash-latest"]
 
 
 def test_daily_brief_checks_ai_numbers():

@@ -2,19 +2,23 @@
    крупная плотная типографика, кнопки-таблетки. Свои цвета, тексты и иконки. */
 @import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap');
 :root {color-scheme:light; --ink:#141a2e; --ink2:#2b3149; --muted:#5f6577; --soft:#6c7182; --line:#e9e5dc; --paper:#f6f3ee; --accent:#f05a28;
-  --peach:linear-gradient(160deg,#ffb48f 0%,#ffd2bd 55%,#ffeede 100%); --lilac:linear-gradient(160deg,#cfd3fb 0%,#e8e4fb 55%,#fff3dd 100%);
-  --lime:linear-gradient(160deg,#e2f4a6 0%,#f4f1c6 55%,#ffdf8a 100%); --sky:linear-gradient(160deg,#cfe5fa 0%,#e9f2fb 55%,#fdf0dc 100%);
+  --peach:linear-gradient(160deg,#ffb48f 0%,#ffd2bd 55%,#ffeede 100%); --lilac:linear-gradient(160deg,#ffc58a 0%,#ffdfba 55%,#fff1df 100%);
+  --lime:linear-gradient(160deg,#e2f4a6 0%,#f4f1c6 55%,#ffdf8a 100%); --sky:linear-gradient(160deg,#ffe27a 0%,#fff0bd 55%,#fff8e6 100%);
   --mint:linear-gradient(160deg,#c6efd9 0%,#e5f6ec 55%,#fbf5e6 100%); --coral:linear-gradient(160deg,#ff8f8a 0%,#ffb7ab 55%,#ffe1cd 100%);}
 html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button, .stApp h1, .stApp h2, .stApp h3, .stApp h4,
 [data-testid="stMarkdownContainer"], [data-testid="stCaptionContainer"], [data-testid="stSidebar"] {font-family:'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif!important;}
 .stApp {background:
   radial-gradient(#d9d3c6 1px, transparent 1.2px) 0 0/22px 22px,
-  radial-gradient(900px 600px at 100% -10%, #ffd9c2 0%, transparent 60%), radial-gradient(800px 700px at -10% 35%, #e3e1ff 0%, transparent 60%),
+  radial-gradient(900px 600px at 100% -10%, #ffd9c2 0%, transparent 60%), radial-gradient(800px 700px at -10% 35%, #ffe3d6 0%, transparent 60%),
   radial-gradient(900px 700px at 60% 120%, #ffe9b5 0%, transparent 55%), var(--paper); color:var(--ink);}
 
 /* служебное Streamlit — убрать */
-#MainMenu, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], .stDeployButton {display:none!important;}
-[data-testid="stHeader"] {background:transparent; height:0;}
+#MainMenu, footer, [data-testid="stMainMenu"], [data-testid="stAppDeployButton"], [data-testid="stToolbarActions"], [data-testid="stDecoration"],
+[data-testid="stStatusWidget"], .stDeployButton {display:none!important;}
+[data-testid="stHeader"] {background:transparent;}
+[data-testid="stSidebarCollapsedControl"], [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapseButton"] {display:flex!important; visibility:visible!important; opacity:1!important;}
+[data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] button {background:#fff!important; border:1px solid var(--line)!important; border-radius:999px!important; box-shadow:0 6px 16px #2a2f4a18;}
+.stApp {-webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
 [data-testid="stMainBlockContainer"] {max-width:1200px; padding:2.2rem 2.6rem 4rem;}
 
 /* типографика */
@@ -28,7 +32,7 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 [data-testid="stCaptionContainer"] p {color:var(--soft)!important; font-size:.84rem;}
 
 /* боковая панель */
-[data-testid="stSidebar"] {background:linear-gradient(180deg,#fff4ec 0%,#f6f1ff 55%,#eef7f1 100%); border-right:1px solid var(--line);}
+[data-testid="stSidebar"] {background:linear-gradient(180deg,#fff1e6 0%,#fff8ec 55%,#fff3e3 100%); border-right:1px solid var(--line);}
 [data-testid="stSidebar"] > div:first-child {padding-top:1.6rem;}
 .brand {font-size:1.7rem; font-weight:800; letter-spacing:-.06em; color:var(--ink); line-height:1;}
 .brand span {color:var(--accent);}
@@ -99,10 +103,25 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .how p {margin:0; font-size:.96rem; line-height:1.5; color:var(--ink2); position:relative;}
 .cred {font-family:ui-monospace,Menlo,monospace; background:#fff; border:1px solid var(--line); border-radius:8px; padding:2px 8px; color:var(--ink);}
 
+.creds {display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+.creds span {background:var(--lilac); border-radius:999px; padding:6px 12px; font-size:.82rem; color:var(--ink);}
+
+/* поле «Спросить ИИ» — заметное */
+[data-testid="stChatInput"] {border:2px solid var(--ink)!important; border-radius:22px!important; background:#fff!important;
+  box-shadow:0 0 0 6px #f05a2822, 0 18px 40px #141a2e26!important; padding:4px 6px!important;}
+[data-testid="stChatInput"]:focus-within {border-color:var(--accent)!important; box-shadow:0 0 0 7px #f05a2833, 0 18px 40px #141a2e26!important;}
+[data-testid="stChatInput"] textarea {font-size:1.05rem!important; color:var(--ink)!important;}
+[data-testid="stChatInput"] textarea::placeholder {color:#5f6577!important; opacity:1;}
+[data-testid="stChatInputSubmitButton"] {background:var(--accent)!important; border-radius:999px!important; opacity:1!important;}
+[data-testid="stChatInputSubmitButton"] svg {color:#fff!important; fill:#fff!important;}
+[data-testid="stBottomBlockContainer"], [data-testid="stBottom"] > div {background:transparent!important;}
+.ask-label {display:inline-block; background:var(--ink); color:#fff; border-radius:999px; padding:6px 14px; font-size:.78rem; font-weight:700; letter-spacing:.06em; margin:10px 0 6px;}
+[data-testid="stChatMessage"] {background:#ffffffd9; border-radius:20px; padding:14px 16px; box-shadow:0 10px 24px #2a2f4a10; margin-bottom:8px;}
+
 /* карточки заявок и аппаратов */
 .tcard {border-radius:22px; padding:18px 20px; box-shadow:0 12px 28px #2a2f4a14; margin:4px 0 8px; min-height:170px; border:1px solid #ffffffc0;
   display:flex; flex-direction:column; gap:6px; position:relative; overflow:hidden; transition:transform .25s, box-shadow .25s;}
-.tcard:hover {transform:translateY(-4px) rotate(-.4deg); box-shadow:0 20px 40px #2a2f4a22;}
+.tcard:hover {transform:translateY(-4px); box-shadow:0 20px 40px #2a2f4a22;}
 .tcard::before {content:""; position:absolute; inset:8px; border:1.4px dashed #ffffffa8; border-radius:16px; pointer-events:none;}
 .tcard > div {position:relative;}
 .tc-top {font-size:.66rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#2c3150c0;}
@@ -110,7 +129,7 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .tc-title {font-size:1.12rem; font-weight:800; letter-spacing:-.025em; color:var(--ink);}
 .tc-text {font-size:.88rem; line-height:1.42; color:var(--ink2); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
 .tc-foot {margin-top:auto; font-size:.72rem; font-weight:600; color:#2c3150aa;}
-.s-new {background:var(--lilac);} .s-new .tc-top::before {background:#6a6ff0;}
+.s-new {background:var(--lilac);} .s-new .tc-top::before {background:#f08a2b;}
 .s-app {background:var(--lime);} .s-app .tc-top::before {background:#d39a12;}
 .s-esc {background:var(--coral);} .s-esc .tc-top::before {background:#e23b2b;}
 .s-res {background:var(--mint);} .s-res .tc-top::before {background:#2f9f6b;}
@@ -144,7 +163,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVert
 
 /* уведомления, вкладки, раскрывашки */
 [data-testid="stAlert"] {border-radius:18px!important; border:none!important;}
-[data-testid="stAlertContentInfo"], [data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) {background:#eef0ff!important;}
+[data-testid="stAlertContentInfo"], [data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) {background:#fff3e6!important;}
 [data-testid="stExpander"] {background:#ffffffc7; border:1px solid var(--line)!important; border-radius:18px!important;}
 [data-testid="stExpander"] summary p {font-weight:600;}
 [data-testid="stTabs"] [role="tab"] {font-weight:600;}
