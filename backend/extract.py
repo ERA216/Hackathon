@@ -7,20 +7,22 @@ import json
 import re
 from typing import Optional
 
-from . import config, db, llm
+from . import config, db, diagnose, llm
 from .schemas import FAILURE_LABELS, ExtractionResult, FailureType
 
+# порядок важен: более конкретные признаки проверяются раньше («подшипник греется» — это подшипник, а не перегрев)
 FAILURE_KEYWORDS = {
     "belt_break": ["ремен", "ремн", "белдік"],
-    "overheating": ["перегр", "греет", "горяч", "қызып", "қызды"],
-    "electrical": ["электр", "автомат", "предохран", "контакт", "щит", "проводк", "замыкан", "ток "],
+    "bearing": ["подшип", "мойынтірек", "гул", "гудит", "вибрац"],
     "sensor": ["датчик", "сенсор", "концевик"],
-    "lubrication": ["смаз", "масл", "майла"],
-    "bearing": ["подшип", "мойынтірек", "гул", "вибрац"],
+    "electrical": ["электр", "автомат", "предохран", "контакт", "щит", "проводк", "замыкан", "искр"],
+    "lubrication": ["смаз", "масл", "майла", "теч", "потек", "подтек", "сальник"],
+    "overheating": ["перегр", "греет", "горяч", "қызып", "қызды"],
     "material": ["сырь", "материал", "заготов", "шикізат"],
 }
-PART_KEYWORDS = {"ремень": ["ремен", "ремн", "белдік"], "датчик": ["датчик"], "подшипник": ["подшип"], "предохранитель": ["предохран"], "контактор": ["контактор"]}
+PART_KEYWORDS = {"ремень": ["ремен", "ремн", "белдік"], "датчик": ["датчик"], "подшипник": ["подшип"], "предохранитель": ["предохран"], "контактор": ["контактор"], "сальник": ["сальник"]}
 REPLACE_WORDS = ["замен", "поставили нов", "поменял", "ауыстыр"]
+ORDINALS = {"перв": 1, "втор": 2, "трет": 3, "четверт": 4, "пят": 5, "шест": 6}
 
 SYSTEM_PROMPT = """Ты извлекаешь инциденты оборудования из отчёта мастера смены небольшого производства.
 Отчёт может быть на русском, казахском или смеси, с опечатками.
@@ -30,7 +32,8 @@ SYSTEM_PROMPT = """Ты извлекаешь инциденты оборудов
 2. failure_type — одно значение из списка типов.
 3. downtime_min — простой в минутах целым числом («1,5 часа» = 90, «полчаса» = 30). Если длительность не указана — null.
 4. downtime_quote — ДОСЛОВНЫЙ фрагмент отчёта, из которого взята длительность (скопируй символы как есть). Если длительности нет — null.
-5. cause — только если причина прямо названа в тексте. Не придумывай. Иначе null.
+5. cause — только если причина прямо названа в тексте («из-за пыли», «потому что…»). Не придумывай. Иначе null.
+   Вероятные причины отдельно подберёт модуль диагностики.
 6. action — что сделали, по тексту. parts — заменённые детали.
 7. confidence — 0..1, насколько уверен в полях этого инцидента.
 8. Ничего не выдумывай: числа, детали и причины — только из текста.
@@ -72,14 +75,30 @@ def _norm(s: str) -> str:
 
 def match_equipment(text: str) -> Optional[str]:
     t = _norm(text)
-    m = re.search(r"(?:станок|станка|станке|станоке|станокта)\s*(?:№|n|#)?\s*(\d+)", t)
     eq = db.equipment_map()
-    if m and f"M{m.group(1)}" in eq:
-        return f"M{m.group(1)}"
+    patterns = [r"(?:станок|станка|станке|станку|станоктың|станокта|ст\.)\s*(?:№|n|#|номер)?\s*(\d+)",
+                r"(?:№|#)\s*(\d+)\s*станок", r"(\d+)\s*[-–]?\s*(?:й|ий|ый|ой)?\s*станок"]
+    for pat in patterns:
+        m = re.search(pat, t)
+        if m and f"M{m.group(1)}" in eq:
+            return f"M{m.group(1)}"
+    m = re.search(r"(" + "|".join(ORDINALS) + r")\w*\s+станок", t)
+    if m and f"M{ORDINALS[m.group(1)]}" in eq:
+        return f"M{ORDINALS[m.group(1)]}"
     for e in eq.values():
         for alias in sorted(e["aliases"], key=len, reverse=True):
             if len(alias) > 2 and _norm(alias) in t:
                 return e["id"]
+    return None
+
+
+def unknown_machine_number(text: str) -> Optional[str]:
+    """Номер станка, которого нет в справочнике (например «станок №9»), — чтобы честно об этом сказать."""
+    m = re.search(r"(?:станок|станка|станке|ст\.)\s*(?:№|n|#)?\s*(\d+)|(\d+)\s*[-–]?\s*(?:й|ий|ый)?\s*станок", _norm(text))
+    if m:
+        num = m.group(1) or m.group(2)
+        if f"M{num}" not in db.equipment_map():
+            return num
     return None
 
 
@@ -144,7 +163,9 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
             else:
                 d["equipment_id"] = None
                 issues.append("equipment")
-                questions.append("Какой станок остановился? Выберите из списка.")
+                num = unknown_machine_number(raw)
+                questions.append(f"Станка №{num} нет в справочнике цеха. Выберите станок из списка или добавьте его в data/equipment.json."
+                                 if num else "Какой станок остановился? Выберите из списка.")
         # 2. Простой: число должно подтверждаться текстом
         mins, quote = d.get("downtime_min"), d.get("downtime_quote")
         verified = False
@@ -167,6 +188,12 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
             if words and not any(w[:5] in raw_n for w in words):
                 d["cause"] = None
                 issues.append("cause_removed")
+        # 3б. Тип поломки не назван — подставляем самый частый по истории станка (мастер подтверждает)
+        if d["failure_type"] == "other" and d["equipment_id"] and detect_failure(raw) == "other":
+            recent = [r["failure_type"] for r in db.incidents(d["equipment_id"])[-10:] if r["failure_type"] != "other"]
+            if recent:
+                d["failure_type"] = max(set(recent), key=recent.count)
+                issues.append("type_from_history")
         # 4. Уверенность
         if d["confidence"] < config.CONFIDENCE_THRESHOLD:
             issues.append("low_confidence")
@@ -196,4 +223,10 @@ def extract(raw: str) -> dict:
         result, mode = rule_based(raw), "rules"
         warning = None if not config.ai_enabled() else e.user_message
     drafts, questions = validate(raw, result)
+    for d in drafts:  # шаг 1б: гипотезы о причине по симптомам и истории станка
+        if d["equipment_id"]:
+            dg = diagnose.diagnose(raw, d["equipment_id"], d["failure_type"])
+            d["hypotheses"], d["diagnosis_mode"], d["history"] = dg["hypotheses"], dg["mode"], dg["history"]
+        else:
+            d["hypotheses"], d["diagnosis_mode"], d["history"] = [], None, None
     return {"drafts": drafts, "questions": questions, "mode": mode, "warning": warning}

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;600;800&display=swap');
+  :root { --ink:#141a2e; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:transparent; font-family:'Onest',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); overflow:hidden; }
+  .stage { position:relative; height:400px; perspective:1400px; }
+  .card { position:absolute; left:50%; top:30px; width:250px; height:330px; margin-left:-125px; cursor:pointer;
+          transition:transform .7s cubic-bezier(.2,.8,.2,1), filter .7s, opacity .7s; will-change:transform; }
+  .inner { position:relative; width:100%; height:100%; border-radius:26px; padding:24px; border:1px solid #ffffffc0;
+           box-shadow:0 26px 50px #2a2f4a26; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden;
+           animation:float 5s ease-in-out infinite alternate; }
+  .inner::before { content:""; position:absolute; inset:10px; border:1.5px dashed #ffffffa8; border-radius:19px; pointer-events:none; }
+  .inner::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 0%, #ffffff55, transparent 55%); pointer-events:none; z-index:0; }
+  .inner > * { position:relative; z-index:1; }
+  @keyframes float { from { transform:translateY(-6px) rotate(-.6deg); } to { transform:translateY(6px) rotate(.6deg); } }
+  .tag { font-size:11px; font-weight:800; letter-spacing:.14em; color:#2c3150aa; position:relative; }
+  .t { font-size:23px; font-weight:800; line-height:1.12; letter-spacing:-.03em; position:relative; margin-top:6px; }
+  .ico { height:96px; display:flex; justify-content:center; align-items:center; opacity:.42; transition:opacity .5s, transform .5s; }
+  .ico svg { width:92px; height:92px; fill:none; stroke:#1d2340; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  .bottom { position:relative; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#2c3150cc; }
+  .sol { position:relative; font-size:14px; line-height:1.38; font-weight:500; color:#1d2340; display:none; margin-bottom:10px; }
+  .card.active .sol { display:block; animation:solin .6s ease both; }
+  @keyframes solin { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .card.active .ico { height:0; opacity:0; overflow:hidden; }
+  .card.active .bottom { color:#c4471d; }
+  .card:hover .inner { box-shadow:0 34px 64px #2a2f4a38; }
+  .g1 { background:linear-gradient(160deg,#f8b733,#fb8b3c 60%,#ff6b3d); }
+  .g2 { background:linear-gradient(160deg,#cdd2fb,#e9e5fb 55%,#fff1d6); }
+  .g3 { background:linear-gradient(160deg,#e3f5a6,#f6f2c2 55%,#ffd977); }
+  .g4 { background:linear-gradient(160deg,#ff8f8f,#ffb9ad 55%,#ffe2cf); }
+  .g5 { background:linear-gradient(160deg,#cfe6fb,#e8f2fb 55%,#fdefd9); }
+  .g6 { background:linear-gradient(160deg,#c7f0dc,#e6f6ee 55%,#fff0d9); }
+  .nav { display:flex; justify-content:center; align-items:center; gap:14px; margin-top:6px; }
+  .nav button { border:1px solid #e9e5dc; background:#fff; border-radius:50%; width:42px; height:42px; font-size:17px; cursor:pointer; color:var(--ink); font-family:inherit; }
+  .nav button:hover { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .dots { display:flex; gap:7px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#d9d5cc; transition:width .3s, background .3s; cursor:pointer; }
+  .dot.on { width:24px; border-radius:6px; background:#141a2e; }
+  @media (max-width:640px) { .card { width:210px; height:290px; margin-left:-105px; } .t { font-size:20px; } .stage { height:360px; } }
+  @media (prefers-reduced-motion:reduce) { .inner { animation:none; } .card { transition:none; } }
+</style></head>
+<body>
+<div class="stage" id="stage"></div>
+<div class="nav"><button id="prev" aria-label="Назад">←</button><div class="dots" id="dots"></div><button id="next" aria-label="Вперёд">→</button></div>
+<script>
+const CARDS = __CARDS__;
+const stage = document.getElementById("stage"), dots = document.getElementById("dots");
+let active = Math.min(CARDS.length - 1, Math.max(0, parseInt((location.hash.match(/card=(\d+)/) || [])[1] || "2", 10)));
+let paused = false;
+CARDS.forEach((c, i) => {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.innerHTML = `<div class="inner ${c.g}" style="animation-delay:${-i * 0.9}s">
+      <div><div class="tag">ПРОБЛЕМА</div><div class="t">${c.problem}</div></div>
+      <div class="ico">${c.icon}</div>
+      <div><div class="sol">${c.solution}</div><div class="bottom">${c.label}</div></div></div>`;
+  el.addEventListener("click", () => { active = i; paused = true; layout(); });
+  stage.appendChild(el);
+  const d = document.createElement("div");
+  d.className = "dot"; d.addEventListener("click", () => { active = i; paused = true; layout(); });
+  dots.appendChild(d);
+});
+function layout() {
+  const narrow = window.innerWidth < 640, step = narrow ? 70 : 165;
+  [...stage.children].forEach((el, i) => {
+    let off = i - active;
+    const n = CARDS.length;
+    if (off > n / 2) off -= n; if (off < -n / 2) off += n;  // по кругу
+    const a = Math.abs(off);
+    el.style.transform = `translateX(${off * step}px) translateY(${a * a * 9 + a * 14}px) rotate(${off * 9}deg) scale(${off === 0 ? 1.08 : 1 - a * 0.05})`;
+    el.style.zIndex = 20 - a;
+    el.style.filter = off === 0 ? "none" : `saturate(${1 - a * 0.12})`;
+    el.style.opacity = a > 2 ? 0 : 1;
+    el.classList.toggle("active", off === 0);
+  });
+  [...dots.children].forEach((d, i) => d.classList.toggle("on", i === active));
+}
+document.getElementById("prev").onclick = () => { active = (active - 1 + CARDS.length) % CARDS.length; paused = true; layout(); };
+document.getElementById("next").onclick = () => { active = (active + 1) % CARDS.length; paused = true; layout(); };
+stage.addEventListener("mouseenter", () => paused = true);
+stage.addEventListener("mouseleave", () => paused = false);
+window.addEventListener("resize", layout);
+setInterval(() => { if (!paused) { active = (active + 1) % CARDS.length; layout(); } }, 3800);
+layout();
+</script>
+</body></html>
