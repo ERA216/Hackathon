@@ -1,0 +1,45 @@
+:root {color-scheme:dark;}
+.stApp {background: radial-gradient(ellipse at 83% 0%, #292752 0%, transparent 49%), #11162d; color:#f5f4f9;}
+[data-testid="stHeader"] {background:transparent;}
+[data-testid="stMainBlockContainer"] {max-width:1240px; padding:3rem 3.5rem 4rem;}
+[data-testid="stSidebar"] {background:#101429; border-right:1px solid #ffffff12;}
+[data-testid="stSidebar"] > div:first-child {padding-top:2.5rem;}
+h1 {font-size:3.1rem!important; font-weight:500!important; letter-spacing:-.055em!important; line-height:1.14!important; margin:0 0 .7rem!important;}
+h2 {font-size:1.35rem!important; font-weight:500!important; letter-spacing:-.025em!important;}
+h3 {font-size:1.12rem!important; font-weight:500!important;}
+p, label {color:#c3c5d6;}
+.intro {max-width:650px; font-size:1.02rem; line-height:1.7; margin-bottom:1.6rem; color:#a9aec5;}
+.eyebrow {font-size:.7rem; letter-spacing:.17em; color:#ff8355; margin:1rem 0 1.1rem; text-transform:uppercase;}
+.brand {font-size:1.9rem; font-weight:650; letter-spacing:-.06em; color:#faf9ff; margin-bottom:0;}
+.brand span {color:#ff743e;}
+.brand-sub {font-size:.73rem; color:#838ba8; margin:0 0 3rem;}
+.workspace {border:1px solid #ffffff19; border-radius:12px; padding:15px; margin:1.6rem 0; font-size:.85rem; color:#e5e6ef; background:#ffffff03;}
+.workspace small {color:#8d96b2; display:block; padding-top:7px;}
+.demo-badge {display:inline-block; border:1px solid #ff976d44; background:#ff835510; color:#ffb18f; border-radius:20px; padding:5px 11px; font-size:.7rem; letter-spacing:.05em;}
+.metric-card {min-height:155px; padding:22px; border:1px solid #ffffff16; border-radius:16px; background:linear-gradient(135deg,#ffffff06,#ffffff02); margin-bottom:20px;}
+.metric-label {font-size:.8rem; color:#a9aec5;}
+.metric-value {font-size:2.15rem; line-height:1.7; letter-spacing:-.05em; color:#f7f6fc;}
+.metric-note {font-size:.73rem; color:#8b94b1;}
+.metric-card.accent {border-color:#ff83554d; background:linear-gradient(135deg,#ff835518,#ff835504);}
+.metric-card.accent .metric-value {color:#ffad83;}
+.signal {padding:25px 28px; border:1px solid #fc865b40; background:linear-gradient(110deg,#f77e3912,#f77e3903); border-radius:16px; margin:5px 0 24px;}
+.signal-title {font-size:1.1rem; color:#ffd0bb; margin-bottom:10px;}
+.signal p {font-size:.9rem; margin:0; line-height:1.7; color:#bcbdd1;}
+.steps {display:flex; gap:12px; margin:0 0 28px; font-size:.75rem; color:#8b94b1;}
+.steps b {color:#ffae8b; font-weight:500;}
+.section-label {font-size:.7rem; color:#8b94b1; letter-spacing:.12em; text-transform:uppercase; margin:20px 0 10px;}
+.note {font-size:.8rem; color:#8993af; line-height:1.7;}
+[data-testid="stVerticalBlockBorderWrapper"] {border-radius:16px!important;}
+[data-testid="stTextArea"] textarea, [data-testid="stTextInput"] input, [data-baseweb="select"] > div {background:#191f39!important; border-color:#ffffff20!important; color:#e8e9f3!important;}
+[data-testid="stTextArea"] textarea {font-size:1rem; line-height:1.8; padding:20px;}
+.stButton button, .stDownloadButton button {border-radius:9px; border:1px solid #ffffff23; background:#ffffff05; color:#e2e5f2; min-height:43px; transition:transform .18s,background .18s;}
+.stButton button:hover {border-color:#ff9365; color:#ffc09e; transform:translateY(-1px);}
+.stButton button[kind="primary"] {background:#fa7946; color:#14162a; border-color:#fa7946; font-weight:600;}
+.stButton button[kind="primary"]:hover {background:#ff9468; color:#14162a;}
+[data-testid="stSidebar"] .stButton button {justify-content:flex-start; padding-left:17px;}
+[data-testid="stSidebar"] .stButton button[kind="primary"] {background:#ff8a5515; color:#ffab83; border-color:#ff8a5530;}
+[data-testid="stExpander"] {background:#ffffff03; border-color:#ffffff15; border-radius:12px;}
+hr {border-color:#ffffff12!important;}
+[data-testid="stCaptionContainer"] p {color:#8d96b2;}
+@media(max-width:700px) {[data-testid="stMainBlockContainer"]{padding:2rem 1.2rem;} h1{font-size:2.3rem!important;}.metric-value{font-size:1.8rem;}.steps{flex-wrap:wrap;}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;}}
