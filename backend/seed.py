@@ -45,6 +45,17 @@ OTHER = [
 TODAY = [
     ("M6", "sensor", 20, [], "Станок №6 снова не видит заготовку, датчик в стружке. Почистили, простой {m} мин.", 8, 40),
     ("C1", "electrical", 15, [], "Компрессор отключился, свет в цеху моргнул. Включили через {m} минут.", 10, 5),
+    ("P1", "overheating", 30, [], "Пресс П-1 греется сильнее обычного, корпус горячий. Остановили на {m} мин.", 9, 20),
+    ("K1", "sensor", 10, [], "Конвейер К-1 встал — датчик ленты сработал ложно. Перезапуск, {m} мин.", 9, 50),
+    ("N1", "lubrication", 15, [], "Насос Н-1: под насосом снова мокро, сальник подтекает. Подтянули, {m} мин.", 10, 30),
+    ("M1", "lubrication", 25, [], "Станок №1 скрипит при пуске, смазки на направляющих почти нет. Остановили на {m} мин, смазали.", 11, 10),
+]
+SEED_VERSION = "4"
+# обходы за последние дни: (дней назад, аппарат, состояние, комментарий)
+INSPECTIONS = [
+    (3, "M3", "remark", "Ремень с потёртостями по краю"), (3, "M4", "remark", "Радиатор в пыли"), (3, "M5", "ok", None),
+    (2, "M3", "problem", "Ремень порвался во время обхода"), (2, "N1", "remark", "Влажный сальник"), (2, "K1", "ok", None),
+    (1, "M4", "remark", "Корпус горячий к концу смены"), (1, "M5", "remark", "Подшипник гудит"), (1, "P1", "ok", None), (1, "C1", "ok", None),
 ]
 
 
@@ -99,6 +110,8 @@ def seed_demo() -> None:
             log_id = db.add_shift_log(text.format(m=mins), "processed", "demo", ts, True, conn=c, author="Мастер смены 1")
             db.add_incident(log_id, {"equipment_id": eq, "failure_type": ftype, "downtime_min": mins, "parts": parts,
                                      "cause": None, "action": None, "confidence": 1.0}, ts, True, conn=c)
+        for d, eq, state, note in INSPECTIONS:
+            db.add_inspection(eq, state, note, "Мастер смены 1", None, _ts(d, 9, 0), True, conn=c)
         # утренний обход (без карточек): большинство станков в норме, у станка №5 замечание
         now = datetime.now()
         if (now.hour, now.minute) > (9, 0):
@@ -110,7 +123,8 @@ def seed_demo() -> None:
         c.execute("""UPDATE incidents SET status='resolved', assignee='Мастер смены 1', approved_by='Администратор цеха',
                      resolution=COALESCE(action, 'Устранено'), resolved_at=datetime(occurred_at, '+2 hours')
                      WHERE company_id=? AND date(occurred_at) < date('now','localtime')""", (cid,))
-        for eq, status, note in (("M4", "approved", None),
+        for eq, status, note in (("M4", "approved", None), ("K1", "approved", None),
+                                 ("N1", "escalated", "Сальник течёт третий раз за месяц — нужен новый комплект уплотнений, на складе нет."),
                                  ("M3", "escalated", "Ремень меняем уже 4-й раз за месяц. Похоже на натяжитель — такой запчасти на складе нет, нужна закупка.")):
             last = c.execute("SELECT MAX(id) FROM incidents WHERE company_id=? AND equipment_id=?", (cid, eq)).fetchone()[0]
             if last:

@@ -27,8 +27,8 @@ EXAMPLES = {
     "Станка нет в справочнике": "Станок №9 встал, простой 20 минут.",
 }
 ROLES = {
-    "worker": ["Обход", "Новая запись", "Мои задачи"],
-    "admin": ["Панель задач", "Состояние оборудования", "Сводка дня", "Аномалии", "План экономии", "История и эффект", "Сотрудники"],
+    "worker": ["Обход", "Новая запись", "Мои задачи", "Спросить ИИ"],
+    "admin": ["Панель задач", "Спросить ИИ", "Состояние оборудования", "Сводка дня", "Аномалии", "План экономии", "История и эффект", "Сотрудники"],
 }
 ROLE_TITLE = {"worker": "Сотрудник", "admin": "Администратор"}
 ROLE_HINT = {
@@ -37,7 +37,7 @@ ROLE_HINT = {
 }
 NAV_LABEL = {("worker", "Обход"): "Отчёт об обходе", ("worker", "Новая запись"): "Сообщить о проблеме",
              ("admin", "Аномалии"): "Что ломается чаще", ("admin", "План экономии"): "Деньги и экономия", ("admin", "История и эффект"): "История"}
-STEP_OF_PAGE = {"Обход": 1, "Новая запись": 1, "Мои задачи": 3, "Панель задач": 3, "Состояние оборудования": 4, "Сводка дня": 4,
+STEP_OF_PAGE = {"Спросить ИИ": 4, "Обход": 1, "Новая запись": 1, "Мои задачи": 3, "Панель задач": 3, "Состояние оборудования": 4, "Сводка дня": 4,
                 "Аномалии": 4, "План экономии": 4, "История и эффект": 2, "Сотрудники": 1}
 RISK_CLASS = {"high": "s-esc", "medium": "s-app", "low": "s-res"}
 RISK_LABEL = {"high": "Высокий риск", "medium": "Средний риск", "low": "Норма"}
@@ -62,8 +62,8 @@ def landing():
     st.markdown('<div class="topbar"><div class="brand">Fix<span>List</span></div><div class="pill">Для заводов, цехов и мастерских</div></div>', unsafe_allow_html=True)
     st.markdown('<div class="hero"><div class="eyebrow">Обходы · проблемы · решения</div>'
                 '<h1>Поломки записаны.<br>Решения видны.</h1>'
-                '<p class="intro">Сотрудник пишет о проблеме с телефона — администратор одобряет, '
-                'а ИИ помогает решить: причина, что проверить, во что вложиться.</p></div>', unsafe_allow_html=True)
+                '<p class="intro">Сотрудник обходит оборудование и записывает данные. Найденные проблемы становятся карточками, '
+                'а ИИ помогает администратору решить их, считает убытки и заранее предупреждает о рисках.</p></div>', unsafe_allow_html=True)
     deck()
     st.markdown('<div class="how"><div><b>01 · ЗАЯВКА</b><p>Компания оставляет заявку и получает кабинет администратора.</p></div>'
                 '<div><b>02 · НАСТРОЙКА</b><p>Мы вносим ваше оборудование и стоимость часа простоя — всё под ваш цех.</p></div>'
@@ -86,12 +86,12 @@ def landing():
                     ss.page = ROLES[user["role"]][0]
                     st.rerun()
                 st.error("Неверный код компании, логин или PIN.")
-            st.caption("Тестовый вход: код " + demo["code"] + " · " +
-                       " · ".join(f"{u['name']}: {u['login']} / {u['pin']}" for u in demo["users"]))
+            st.markdown("<div class='creds'>" + f"<span>Код <b>{demo['code']}</b></span>" +
+                        "".join(f"<span>{u['name'].split()[0]}: <b>{u['login']} / {u['pin']}</b></span>" for u in demo["users"]) + "</div>",
+                        unsafe_allow_html=True)
     with right:
         with st.container(border=True):
             st.subheader("Подключить компанию")
-            st.caption("Прототип: кабинет создаётся сразу. В жизни мы связываемся и настраиваем оборудование под вас. Не вводите реальные персональные данные.")
             with st.form("register"):
                 name = st.text_input("Название компании", placeholder="ТОО «Пример»")
                 city = st.text_input("Город", placeholder="Павлодар")
@@ -112,12 +112,18 @@ def landing():
                     ss.page = ROLES["admin"][0]
                     ss.pop("registered", None)
                     st.rerun()
-    st.caption("FixList · Павлодар · Хакатон Торайгыров университета · ответы ИИ помечены, решения принимает человек")
 
 
+if not ss.get("user") and st.query_params.get("s"):  # вход сохраняется после обновления страницы
+    restored = service.user_from_token(st.query_params.get("s"))
+    if restored:
+        ss.user = restored
+    else:
+        st.query_params.clear()
 if not ss.get("user"):
     landing()
     st.stop()
+st.query_params["s"] = service.session_token(ss.user["id"])
 
 USER = ss.user
 ROLE = "admin" if USER["role"] == "admin" else "worker"
@@ -153,6 +159,7 @@ with st.sidebar:
     if st.button("Выйти", use_container_width=True):
         for k in list(ss.keys()):
             del ss[k]
+        st.query_params.clear()
         st.rerun()
 
 
@@ -191,7 +198,7 @@ def page_new_record():
         if ROLE == "worker":
             st.markdown('<div class="section-label">Как писать</div>', unsafe_allow_html=True)
             st.markdown("**Что** сломалось — номер станка.\n\n**Что** случилось — шум, перегрев, порвался ремень.\n\n**Сколько** стояли — «40 минут», «полтора часа».")
-            st.caption("Заявку сразу увидит администратор. После одобрения её можно будет решить с подсказками ИИ.")
+            st.caption("Заявку сразу увидит администратор. После одобрения её можно будет решить с анализом ИИ.")
             mine = service.tickets(author=USER["display_name"], limit=3)
             if mine:
                 st.markdown('<div class="section-label">Ваши последние заявки</div>', unsafe_allow_html=True)
@@ -367,7 +374,7 @@ def ticket_card(t):
 
 def ai_hints(t):
     hyps = service.ticket_hypotheses(t)
-    st.markdown("**Подсказки ИИ: возможные причины и что проверить**")
+    st.markdown("**Анализ ИИ: вероятные причины и что проверить**")
     for h in hyps:
         st.markdown(f"- **{h['title']}** · {h['confidence']:.0%} — " + "; ".join(h["checks"]))
     return hyps
@@ -484,8 +491,16 @@ def page_health():
                         go("План экономии")
 
 
+def _live(fn):
+    """Блок, который сам обновляется каждые 15 секунд (если версия Streamlit это умеет)."""
+    frag = getattr(st, "fragment", None)
+    return frag(run_every=15)(fn) if frag else fn
+
+
+@_live
 def ai_warnings():
     import html as _h
+    from datetime import datetime
     risky = [h for h in service.equipment_health() if h["risk"] != "low"][:3]
     if not risky:
         return
@@ -495,10 +510,44 @@ def ai_warnings():
                else "срок поломки уже наступил" if h["days_to_next"] is not None else "мало данных для прогноза")
         rows += (f'<div class="warn-row"><span class="dot {h["risk"]}"></span><b>{_h.escape(h["equipment_name"])}</b>'
                  f'<span class="warn-meta">здоровье {h["health"]}% · убыток {kzt(h["loss_kzt"])} ₸ за 30 дн. · {nxt}</span></div>')
+    cnt = service.ticket_counts()
     st.markdown(f'<div class="warn"><div class="warn-head"><span class="warn-tag">ИИ предупреждает</span>'
-                f'<span class="warn-sub">по истории поломок и обходов</span></div>{rows}</div>', unsafe_allow_html=True)
+                f'<span class="warn-sub">обновлено в {datetime.now():%H:%M:%S} · пересчёт каждые 15 сек · открытых заявок: {cnt["new"] + cnt["approved"] + cnt["escalated"]}</span></div>{rows}</div>',
+                unsafe_allow_html=True)
     if st.button("Состояние всего оборудования →", key="to_health"):
         go("Состояние оборудования")
+
+
+# ---------------- спросить ИИ ----------------
+EXAMPLE_QUESTIONS = ["Что сломается первым?", "Какой станок обходится дороже всего?", "Что сделать сегодня в первую очередь?", "Что со станком №3?"]
+
+
+def page_ask():
+    heading("Спросить ИИ", "Спросите — ИИ ответит\nпо данным вашего цеха.", "ИИ видит состояние оборудования, убытки, прогнозы и открытые заявки. Отвечает только по базе: числа в ответе сверяются с данными.")
+    chat = ss.setdefault("chat", [])
+    cols = st.columns(len(EXAMPLE_QUESTIONS))
+    picked = None
+    for c, q in zip(cols, EXAMPLE_QUESTIONS):
+        if c.button(q, use_container_width=True, key=f"exq_{q}"):
+            picked = q
+    for m in chat:
+        with st.chat_message("user"):
+            st.write(m["q"])
+        with st.chat_message("assistant"):
+            st.write(m["a"])
+            st.caption(("Анализ ИИ" if m["mode"] == "ai" else "Ответ собран кодом из базы") + (" · опирается на: " + ", ".join(m["based_on"]) if m["based_on"] else ""))
+    st.markdown('<div class="ask-label">Спросить ИИ ↓ напишите вопрос в поле внизу экрана</div>', unsafe_allow_html=True)
+    q = st.chat_input("Спросите ИИ: почему станок №4 перегревается и что делать?") or picked
+    if q:
+        with st.spinner("ИИ анализирует базу…"):
+            try:
+                r = service.ask_ai(q, chat)
+                chat.append({"q": q, "a": r["answer"], "mode": r["mode"], "based_on": r["based_on"]})
+                if r.get("warning"):
+                    st.warning(r["warning"])
+            except ValueError as e:
+                st.error(str(e))
+        st.rerun()
 
 
 # ---------------- администратор: панель задач ----------------
@@ -548,15 +597,20 @@ def ticket_detail(t):
             hyps = ai_hints(t)
         with b:
             if t["status"] == "new":
-                if st.button("Поручить сотрудникам — решают с подсказками ИИ", type="primary", use_container_width=True, key="approve"):
+                if st.button("Поручить сотрудникам — решают с анализом ИИ", type="primary", use_container_width=True, key="approve"):
                     service.approve_ticket(t["id"], USER["display_name"])
                     ss.pop("sel_ticket", None)
                     st.rerun()
             if st.button("Деньги и экономия по этой поломке", use_container_width=True, key="to_plan"):
                 ss.plan_target = (t["equipment_id"], t["failure_type"])
                 go("План экономии")
-            with st.expander("Решить самому", expanded=t["status"] == "escalated"):
-                resolve_form(t, hyps, USER["display_name"], f"a{t['id']}")
+            if hyps:
+                top = hyps[0]
+                st.markdown(f"**Решение ИИ:** {top['title'].lower()} — {top['checks'][0].lower()}.")
+                if st.button("Применить решение ИИ", type="primary", use_container_width=True, key=f"ai_fix_{t['id']}"):
+                    service.resolve_ticket(t["id"], USER["display_name"], "По анализу ИИ: " + "; ".join(top["checks"]), top["title"])
+                    ss.pop("sel_ticket", None)
+                    st.rerun()
 
 
 def render_checklist():
@@ -738,7 +792,7 @@ def page_history():
         st.info("Записей по этому запросу нет. Попробуйте номер станка или очистите поиск.")
 
 
-{"Обход": page_inspection, "Новая запись": page_new_record, "Мои задачи": page_tasks, "Панель задач": page_board, "Состояние оборудования": page_health,
+{"Спросить ИИ": page_ask, "Обход": page_inspection, "Новая запись": page_new_record, "Мои задачи": page_tasks, "Панель задач": page_board, "Состояние оборудования": page_health,
  "Сводка дня": page_brief, "Аномалии": page_anomalies, "План экономии": page_plan, "История и эффект": page_history,
  "Сотрудники": page_staff}[ss.page]()
 

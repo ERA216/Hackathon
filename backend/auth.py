@@ -104,3 +104,34 @@ def login(company_code: str, login_: str, pin: str) -> Optional[dict]:
 def list_users(company_id: int) -> list[dict]:
     with db.connect() as c:
         return [dict(r) for r in c.execute("SELECT id, login, display_name, role, created_at FROM users WHERE company_id=? ORDER BY id", (company_id,))]
+
+
+# ---------- сессия: подписанный токен в адресе страницы ----------
+def _secret() -> bytes:
+    from . import config
+    path = config.ROOT / ".session_secret"
+    if not path.exists():
+        path.write_text(secrets.token_hex(32), encoding="utf-8")
+    return path.read_text(encoding="utf-8").strip().encode()
+
+
+def make_token(user_id: int) -> str:
+    sig = hmac.new(_secret(), str(user_id).encode(), hashlib.sha256).hexdigest()[:32]
+    return f"{user_id}.{sig}"
+
+
+def user_from_token(token: str) -> Optional[dict]:
+    try:
+        uid, sig = (token or "").split(".", 1)
+        if not hmac.compare_digest(make_token(int(uid)), token):
+            return None
+    except (ValueError, TypeError):
+        return None
+    with db.connect() as c:
+        r = c.execute("""SELECT u.*, c.name AS company_name, c.code AS company_code, c.is_demo FROM users u
+                         JOIN companies c ON c.id = u.company_id WHERE u.id=?""", (int(uid),)).fetchone()
+    if not r:
+        return None
+    u = dict(r)
+    u.pop("pin_hash")
+    return u

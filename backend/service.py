@@ -8,10 +8,11 @@ from .schemas import FAILURE_LABELS, FailureType
 def bootstrap() -> None:
     """Создать базу и демо-данные при первом запуске."""
     db.init_db()
-    if db.is_empty():  # первая установка или база старого формата без компаний: демо-данные пересоздаются начисто
-        seed.reset_demo()
+    if db.is_empty() or db.get_meta("seed_version") != seed.SEED_VERSION:
+        seed.reset_demo()  # первая установка или новая версия тестовых данных: тестовая компания пересоздаётся (другие не трогаются)
+        db.set_meta("seed_version", seed.SEED_VERSION)
     else:
-        seed.ensure_demo_company()  # добавит демо-пользователей, появившихся в новой версии (например, механика)
+        seed.ensure_demo_company()
 
 
 def status() -> dict:
@@ -136,6 +137,11 @@ def reset_demo() -> None:
     seed.reset_demo()
 
 
+def ask_ai(question: str, history=None) -> dict:
+    from . import assistant
+    return assistant.ask(question, history)
+
+
 # ---------- обход оборудования (сотрудник-аналитик) ----------
 
 def save_inspection(rows: list[dict], author: str) -> dict:
@@ -241,6 +247,14 @@ def use_company(company_id: int) -> None:
 
 def login(company_code: str, login_: str, pin: str):
     return auth.login(company_code, login_, pin)
+
+
+def session_token(user_id: int) -> str:
+    return auth.make_token(user_id)
+
+
+def user_from_token(token: str):
+    return auth.user_from_token(token)
 
 
 def register_company(name: str, city: str = "", note: str = "") -> dict:
