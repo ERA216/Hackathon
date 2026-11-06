@@ -146,3 +146,64 @@ def measure_effect(equipment_id: str, failure_types: list[str], applied_at: str)
         if res["avg_interval_before"]:
             res["ratio"] = round(res["avg_interval_after"] / res["avg_interval_before"], 1)
     return res
+
+
+STATE_LABELS = {"ok": "Норма", "remark": "Замечание", "problem": "Проблема"}
+
+
+def equipment_health(today: Optional[datetime] = None) -> list[dict]:
+    """Состояние каждого аппарата: поломки и убытки за период, ритм поломок, прогноз следующей и объяснение.
+
+    Прогноз простой и прозрачный: средний из последних интервалов между поломками (если интервалы сокращаются —
+    берётся последний). Это предупреждение, а не гарантия.
+    """
+    today = (today or datetime.now()).replace(hour=0, minute=0, second=0, microsecond=0)
+    days = config.ANALYSIS_WINDOW_DAYS
+    df = incidents_df()
+    last_insp = {}
+    for r in db.inspections():
+        last_insp.setdefault(r["equipment_id"], r)
+    out = []
+    for e in db.load_equipment():
+        g = df[df["equipment_id"] == e["id"]] if not df.empty else df
+        win = _window(g, today + timedelta(hours=23, minutes=59), days) if not g.empty else g
+        failures = int(len(win))
+        downtime_h = round(float(win["downtime_h"].sum()), 1) if failures else 0.0
+        loss = int(round(win["loss_kzt"].sum())) if failures else 0
+        iv = intervals_days(g["occurred_at"]) if len(g) >= 2 else []
+        recent = [x for x in iv[-3:] if x > 0]
+        last_date = g["occurred_at"].max().normalize() if not g.empty else None
+        days_since = int((today - last_date).days) if last_date is not None else None
+        shrinking = len(recent) >= 3 and all(a > b for a, b in zip(recent, recent[1:]))
+        expected = (recent[-1] if shrinking else round(sum(recent) / len(recent))) if recent else None
+        days_to_next = (expected - days_since) if expected is not None and days_since is not None else None
+        insp = last_insp.get(e["id"])
+        reasons = []
+        risk = "low"
+        if shrinking or failures >= 4 or (days_to_next is not None and days_to_next <= 2 and failures >= 2):
+            risk = "high"
+        elif failures >= 3 or (days_to_next is not None and days_to_next <= 7 and failures >= 2):
+            risk = "medium"
+        if insp and insp["state"] == "problem":
+            risk = "high"
+        elif insp and insp["state"] == "remark" and risk == "low":
+            risk = "medium"
+        if failures:
+            reasons.append(f"за {days} дн. поломок: {failures}, простой {num(downtime_h)} ч, убыток ≈ {kzt(loss)} ₸")
+        else:
+            reasons.append(f"за {days} дн. поломок не было")
+        if shrinking:
+            reasons.append("интервалы между поломками сокращаются: " + " → ".join(map(str, recent)) + " дн")
+        if expected is not None and days_to_next is not None:
+            if days_to_next <= 0:
+                reasons.append(f"обычно ломается раз в ~{expected} дн., с последней поломки прошло {days_since} — срок уже наступил")
+            else:
+                reasons.append(f"обычно ломается раз в ~{expected} дн. — следующая возможна через ~{days_to_next} дн.")
+        if insp:
+            reasons.append(f"последний обход {insp['created_at'][:10]}: {STATE_LABELS[insp['state']].lower()}" + (f" — {insp['note']}" if insp.get("note") else ""))
+        health = 100 - failures * 12 - int(downtime_h * 4) - (15 if shrinking else 0) - (20 if insp and insp["state"] == "problem" else 8 if insp and insp["state"] == "remark" else 0)
+        out.append({"equipment_id": e["id"], "equipment_name": e["name"], "line": e["line"], "failures": failures, "downtime_h": downtime_h,
+                    "loss_kzt": loss, "risk": risk, "health": max(5, min(100, health)), "days_to_next": days_to_next, "expected_interval": expected,
+                    "shrinking": shrinking, "last_inspection": insp, "explanation": ("; ".join(reasons) + ".").replace("..", ".")})
+    order = {"high": 0, "medium": 1, "low": 2}
+    return sorted(out, key=lambda r: (order[r["risk"]], -r["loss_kzt"], r["health"]))
