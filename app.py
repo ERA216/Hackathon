@@ -1,5 +1,8 @@
 """FixList — рабочее приложение: интерфейс из ui_preview.py, подключённый к backend.service."""
 import streamlit as st
+import html
+import time
+from urllib.parse import urlencode
 
 from backend import service
 from backend.schemas import kzt
@@ -59,8 +62,15 @@ FAILURES = service.failure_options()
 
 
 # ---------------- главная и вход ----------------
+def brand_link():
+    params = st.query_params.to_dict()
+    params["_refresh"] = str(time.time_ns())
+    url = html.escape("?" + urlencode(params), quote=True)
+    return f'<a class="brand brand-link" href="{url}" target="_self" aria-label="FixList — обновить страницу">Fix<span>List</span></a>'
+
+
 def landing():
-    st.markdown('<div class="topbar"><div class="brand">Fix<span>List</span></div><div class="pill">Для заводов, цехов и мастерских</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="topbar">' + brand_link() + '<div class="pill">Для заводов, цехов и мастерских</div></div>', unsafe_allow_html=True)
     st.markdown('<div class="hero"><div class="eyebrow">Обходы · проблемы · решения</div>'
                 '<h1>Поломки записаны.<br>Решения видны.</h1>'
                 '<p class="intro">Сотрудник обходит оборудование и записывает данные. Найденные проблемы становятся карточками, '
@@ -149,7 +159,7 @@ def flow():
 
 # ---------------- боковая панель ----------------
 with st.sidebar:
-    st.markdown('<div class="brand">Fix<span>List</span></div><div class="brand-sub">Обходы · проблемы · решения</div>', unsafe_allow_html=True)
+    st.markdown(brand_link() + '<div class="brand-sub">Обходы · проблемы · решения</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="workspace">&nbsp; {USER["company_name"]}<small>Код компании: {USER["company_code"]}</small></div>', unsafe_allow_html=True)
     st.markdown(f"**{USER['display_name']}** · {ROLE_TITLE[ROLE]}")
     for i, page in enumerate(ROLES[ROLE]):

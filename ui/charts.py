@@ -56,7 +56,7 @@ def activity_chart(rows):
             ("Максимум за день", f'{int(peak["count"])} · {peak["date"]}'),
         ])
         base = alt.Chart(frame).encode(
-            x=alt.X("date:O", title=None, sort=None, axis=alt.Axis(labelAngle=0, labelOverlap=False), scale=alt.Scale(padding=0.55)),
+            x=alt.X("date:O", title=None, sort=None, axis=alt.Axis(labelAngle=0, labelOverlap=False), scale=alt.Scale(padding=0.3)),
             y=alt.Y("count:Q", title="Инциденты, шт.", scale=alt.Scale(domain=[0, max(1, float(frame["count"].max())) * 1.2]),
                     axis=alt.Axis(tickMinStep=1, tickCount=5, format="d")))
         bars = base.mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
@@ -84,7 +84,7 @@ def downtime_chart(evidence):
     span = max(1, (dates[-1] - dates[0]).days)
     ticks = [alt.DateTime(year=d.year, month=d.month, date=d.day) for d in dates[::max(1, (len(dates) + 6) // 7)]]
     with st.container(border=True):
-        _header("История остановок", "Каждая точка — отдельный инцидент. Расстояние по времени соответствует датам.", [
+        _header("История остановок", "Каждый столбец — отдельный инцидент. Расстояние по времени соответствует датам.", [
             ("Суммарный простой", f'{_number(round(float(frame["downtime_min"].sum()) / 60, 1))} ч'),
             ("Средняя остановка", f'{_number(round(avg, 1))} мин'),
             ("Самая долгая", f'{_number(maximum)} мин'),
@@ -93,15 +93,15 @@ def downtime_chart(evidence):
             x=alt.X("when:T", title=None, scale=alt.Scale(domain=[dates[0] - pd.Timedelta(days=span * 0.08), dates[-1] + pd.Timedelta(days=span * 0.08)]),
                     axis=alt.Axis(values=ticks, format="%d.%m", labelAngle=0, labelOverlap="greedy")),
             y=alt.Y("downtime_min:Q", title="Простой, мин", scale=alt.Scale(domain=[0, max(1, maximum) * 1.3]), axis=alt.Axis(tickCount=5, tickMinStep=1)))
-        stems = base.mark_rule(strokeWidth=2, color="#d9c5b4").encode(y2=alt.datum(0))
-        points = base.mark_circle(size=110, opacity=1, stroke="#fffdf9", strokeWidth=2).encode(
-            color=alt.condition(alt.datum.longest, alt.value(ACCENT), alt.value("#b69276")),
+        bars = base.mark_bar(size=alt.ExprRef(expr="max(20, min(80, width * 0.12))"),
+                             cornerRadiusTopLeft=5, cornerRadiusTopRight=5).encode(
+            color=alt.condition(alt.datum.longest, alt.value(ACCENT), alt.value(SAND)),
             tooltip=[alt.Tooltip("record:N", title="Запись"), alt.Tooltip("when:T", title="Дата", format="%d.%m.%Y"),
                      alt.Tooltip("downtime_min:Q", title="Простой, мин"), alt.Tooltip("raw_text:N", title="Отчёт мастера")])
-        labels = base.mark_text(dy=-19, color=INK, fontSize=13, fontWeight=600).encode(
+        labels = base.mark_text(dy=-13, color=INK, fontSize=13, fontWeight=600).encode(
             text=alt.Text("label:N") if len(frame) <= 10 else alt.condition(alt.datum.longest, alt.Text("label:N"), alt.value("")))
         mean = alt.Chart(pd.DataFrame({"avg": [avg]})).mark_rule(stroke=MUTED, strokeDash=[5, 5], strokeWidth=1).encode(y="avg:Q")
-        _render(stems + mean + points + labels, 340)
+        _render(bars + mean + labels, 340)
         _legend([("today", "Максимальный простой"), ("average", f"Среднее: {_number(round(avg, 1))} мин")])
         items = []
         for i, row in frame.iterrows():
@@ -110,4 +110,4 @@ def downtime_chart(evidence):
                          f'<strong>{int(row["downtime_min"])} мин</strong><small>{interval}</small></div>')
         st.markdown('<div class="chart-events">' + ''.join(items) + '</div>', unsafe_allow_html=True)
         if frame["when"].duplicated().any():
-            st.caption("В один день зарегистрировано несколько инцидентов. Точки могут совпадать; все записи перечислены ниже.")
+            st.caption("В один день зарегистрировано несколько инцидентов. Столбцы могут перекрываться; все записи перечислены ниже.")

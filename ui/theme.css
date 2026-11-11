@@ -35,6 +35,8 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 [data-testid="stSidebar"] > div:first-child {padding-top:1.6rem;}
 .brand {font-size:1.7rem; font-weight:800; letter-spacing:-.06em; color:var(--ink); line-height:1;}
 .brand span {color:var(--accent);}
+.brand-link,.brand-link:visited,.brand-link:hover {display:inline-block; color:var(--ink)!important; text-decoration:none!important; cursor:pointer;}
+.brand-link:focus-visible {outline:2px solid #b94922; outline-offset:5px; border-radius:4px;}
 .brand-sub {font-size:.74rem; color:var(--soft); margin:.4rem 0 1.4rem;}
 .workspace {border-radius:18px; padding:14px 16px; margin:0 0 1rem; font-size:.9rem; font-weight:700; color:var(--ink); background:var(--lilac); position:relative;}
 .workspace::before {content:""; position:absolute; inset:5px; border:1.3px dashed #ffffffb0; border-radius:14px; pointer-events:none;}
