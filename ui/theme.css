@@ -174,7 +174,23 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVert
 [data-testid="stTabs"] [role="tab"] {font-weight:600;}
 [data-testid="stTabs"] [aria-selected="true"] {color:var(--ink)!important;}
 [data-testid="stDataFrame"], [data-testid="stDataEditor"] {border-radius:18px; overflow:hidden; border:1px solid var(--line);}
-[data-testid="stVegaLiteChart"] {background:#fffaf5; border:1px solid #eadecf; border-radius:22px; padding:14px 8px; overflow:hidden;}
+[data-testid="stVegaLiteChart"] {background:#fffdf9; border:0; border-radius:12px; padding:0; overflow:hidden;}
+.chart-heading {font-size:1.14rem; font-weight:700; color:#493e36; margin:6px 0; letter-spacing:-.02em;}
+.chart-description {font-size:.86rem; line-height:1.6; color:#83766b; margin-bottom:22px;}
+.chart-stats {display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:4px 0 20px; border-bottom:1px solid #eadecf; margin-bottom:12px;}
+.chart-stats > div + div {border-left:1px solid #eadecf; padding-left:20px;}
+.chart-stats span {display:block; color:#83766b; font-size:.75rem; margin-bottom:8px;}
+.chart-stats strong {display:block; color:#493e36; font-size:1.4rem; font-weight:650; letter-spacing:-.03em;}
+.chart-legend {display:flex; flex-wrap:wrap; gap:12px 24px; color:#83766b; font-size:.76rem; padding:10px 0 16px;}
+.chart-legend span {display:inline-flex; align-items:center; gap:7px;}
+.chart-legend i {display:inline-block; width:9px; height:9px; border-radius:2px;}
+.legend-today {background:#b94922;} .legend-history {background:#d8b79c;}
+.chart-legend .legend-average {width:18px; height:0; border-top:1px dashed #83766b; border-radius:0;}
+.chart-events {display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:0; border-top:1px solid #eadecf; padding-top:16px;}
+.chart-events > div {padding:6px 12px; border-left:2px solid #eadecf; margin-bottom:8px;}
+.chart-events span,.chart-events small {display:block; color:#83766b; font-size:.75rem;}
+.chart-events strong {display:block; margin:6px 0; color:#493e36; font-size:.95rem; font-weight:600;}
+@media(max-width:600px){.chart-stats > div + div{padding-left:10px;}.chart-stats strong{font-size:1.1rem;}.chart-stats span{font-size:.7rem;}}
 [data-testid="stVegaLiteChart"] [data-testid="stElementToolbar"],
 [data-testid="stFullScreenFrame"]:has([data-testid="stVegaLiteChart"]) [data-testid="stElementToolbar"],
 [data-testid="stVegaLiteChart"] .vega-actions {display:none!important;}

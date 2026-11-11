@@ -4,7 +4,7 @@ import streamlit as st
 from backend import service
 from backend.schemas import kzt
 from ui.theme import apply_theme, card, deck, heading
-from ui.charts import bar_chart
+from ui.charts import activity_chart, downtime_chart
 
 st.set_page_config(page_title="FixList · обходы, проблемы, решения", page_icon="◆", layout="wide")
 apply_theme()
@@ -352,8 +352,7 @@ def page_brief():
             st.info("Сегодня мастера ещё ничего не записали.")
 
     if sm["per_day"]:
-        st.subheader("Записи за последние 7 дней")
-        bar_chart(sm["per_day"], "Дата", "Записей", y_title="Количество записей", height=320, integer=True)
+        activity_chart(sm["per_day"])
 
     cnt = service.ticket_counts()
     st.markdown(f"**Заявки:** нужна помощь — {cnt['escalated']} · ждут одобрения — {cnt['new']} · решают сотрудники — {cnt['approved']} · решено сегодня — {cnt['resolved_today']}")
@@ -681,10 +680,7 @@ def page_anomalies():
     st.markdown(f'<div class="signal"><div class="signal-title">↗ &nbsp; {s["title"]}</div><p>{s["message"]}</p></div>', unsafe_allow_html=True)
     st.caption(f"Расчёт потерь: {s['formula']}")
     ev = service.incident_evidence(s["incident_ids"])
-    st.subheader("Длительность остановок")
-    st.caption("Часы простоя по инцидентам периода")
-    bar_chart({"Дата": [e["date"][5:] for e in ev], "Часы": [round(e["downtime_min"] / 60, 2) for e in ev]},
-              "Дата", "Часы", y_title="Простой, часы", height=400)
+    downtime_chart(ev)
     st.subheader("На чём основан сигнал")
     for e in ev:
         with st.expander(f"#{e['id']} · {e['date']} · {e['downtime_min']} мин"):
