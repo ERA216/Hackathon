@@ -157,7 +157,41 @@ def flow():
     st.markdown(f'<div class="steps">{html}</div>', unsafe_allow_html=True)
 
 
+def logout():
+    for k in list(ss.keys()):
+        del ss[k]
+    st.query_params.clear()
+    st.rerun()
+
+
+@st.dialog("Аккаунт")
+def account_dialog():
+    initials = "".join(part[0] for part in USER["display_name"].split()[:2]).upper()
+    st.markdown(
+        '<div class="account-profile account-dialog-profile">'
+        f'<div class="account-avatar" aria-hidden="true">{html.escape(initials)}</div>'
+        f'<div class="account-info"><strong>{html.escape(USER["display_name"])}</strong>'
+        f'<small>{html.escape(ROLE_TITLE[ROLE])}</small></div></div>',
+        unsafe_allow_html=True,
+    )
+    details = [
+        ("Логин", USER.get("login", "—")),
+        ("Роль", ROLE_TITLE[ROLE]),
+        ("Компания", USER["company_name"]),
+        ("Код компании", USER["company_code"]),
+    ]
+    st.markdown(
+        '<dl class="account-details">' + "".join(
+            f'<div><dt>{label}</dt><dd>{html.escape(value)}</dd></div>'
+            for label, value in details
+        ) + '</dl>', unsafe_allow_html=True,
+    )
+    if st.button("Выйти из аккаунта", key="profile-logout", use_container_width=True):
+        logout()
+
+
 # ---------------- боковая панель ----------------
+open_account = False
 with st.sidebar:
     st.markdown(brand_link() + '<div class="brand-sub">Обходы · проблемы · решения</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="workspace">{html.escape(USER["company_name"])}<small>Код компании: {html.escape(USER["company_code"])}</small></div>', unsafe_allow_html=True)
@@ -169,19 +203,22 @@ with st.sidebar:
     with st.container(border=True, key="sidebar-account"):
         initials = "".join(part[0] for part in USER["display_name"].split()[:2]).upper()
         account_detail = ROLE_TITLE[ROLE] + (f' · {USER["login"]}' if USER.get("login") else "")
-        st.markdown(
-            '<div class="account-profile">'
-            f'<div class="account-avatar" aria-hidden="true">{html.escape(initials)}</div>'
-            '<div class="account-info"><span>Аккаунт</span>'
-            f'<strong>{html.escape(USER["display_name"])}</strong>'
-            f'<small>{html.escape(account_detail)}</small></div></div>',
-            unsafe_allow_html=True,
-        )
+        with st.container(key="account-trigger"):
+            st.markdown(
+                '<div class="account-profile">'
+                f'<div class="account-avatar" aria-hidden="true">{html.escape(initials)}</div>'
+                '<div class="account-info"><span>Аккаунт</span>'
+                f'<strong>{html.escape(USER["display_name"])}</strong>'
+                f'<small>{html.escape(account_detail)}</small></div>'
+                '<span class="account-chevron" aria-hidden="true">›</span></div>',
+                unsafe_allow_html=True,
+            )
+            open_account = st.button("Открыть аккаунт", key="open-account", use_container_width=True)
         if st.button("Выйти", use_container_width=True):
-            for k in list(ss.keys()):
-                del ss[k]
-            st.query_params.clear()
-            st.rerun()
+            logout()
+
+if open_account:
+    account_dialog()
 
 
 

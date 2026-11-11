@@ -14,6 +14,7 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 /* служебное Streamlit — убрать */
 #MainMenu, footer, [data-testid="stMainMenu"], [data-testid="stAppDeployButton"], [data-testid="stToolbarActions"], [data-testid="stDecoration"],
 [data-testid="stStatusWidget"], .stDeployButton {display:none!important;}
+[data-testid="stHeaderActionElements"], [data-testid="stHeaderLink"] {display:none!important;}
 [data-testid="stHeader"] {background:transparent;}
 [data-testid="stSidebarCollapsedControl"], [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapseButton"] {display:flex!important; visibility:visible!important; opacity:1!important;}
 [data-testid="stExpandSidebarButton"], [data-testid="stSidebarCollapsedControl"] button {background:#fff!important; border:1px solid var(--line)!important; border-radius:999px!important; box-shadow:0 6px 16px #2a2f4a18;}
@@ -38,7 +39,8 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .brand-link,.brand-link:visited,.brand-link:hover {display:inline-block; color:var(--ink)!important; text-decoration:none!important; cursor:pointer;}
 .brand-link:focus-visible {outline:2px solid #b94922; outline-offset:5px; border-radius:4px;}
 .brand-sub {font-size:.74rem; color:var(--soft); margin:.4rem 0 1.4rem;}
-.workspace {padding:14px 0; margin:0 0 1rem; border-top:1px solid #e9d9ca; border-bottom:1px solid #e9d9ca; font-size:.9rem; font-weight:700; color:var(--ink);}
+.workspace {border-radius:18px; padding:14px 16px; margin:0 0 1rem; font-size:.9rem; font-weight:700; color:var(--ink); background:var(--lilac); position:relative;}
+.workspace::before {content:""; position:absolute; inset:5px; border:1.3px dashed #ffffffb0; border-radius:14px; pointer-events:none;}
 .workspace small {color:#4b5070; display:block; padding-top:4px; font-weight:500;}
 .account-profile {display:flex; align-items:center; gap:12px; padding:4px 0 10px;}
 .account-avatar {width:38px; height:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#ffe2ce; color:#8b4628; font-size:.82rem; font-weight:700;}
@@ -46,9 +48,30 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .account-info span {display:block; font-size:.65rem; letter-spacing:.08em; text-transform:uppercase; color:#83766b; margin-bottom:4px;}
 .account-info strong {display:block; color:var(--ink); font-size:.86rem; line-height:1.4; overflow-wrap:anywhere;}
 .account-info small {display:block; color:#83766b; font-size:.73rem; line-height:1.5; margin-top:3px;}
-[data-testid="stSidebar"] .st-key-sidebar-account {background:#fffaf5; border-radius:18px;}
+.account-chevron {margin-left:auto; padding-left:4px; font-size:1.5rem; color:#aa8063;}
+.st-key-account-trigger {position:relative; border-radius:14px;}
+.st-key-account-trigger [data-testid="stMarkdownContainer"] {margin-bottom:0;}
+.st-key-account-trigger .account-profile {padding:0; gap:8px;}
+.st-key-account-trigger .account-info strong {font-size:.82rem;}
+.st-key-account-trigger .account-chevron {padding-left:0;}
+.st-key-account-trigger .st-key-open-account {position:absolute; inset:0; z-index:1; height:100%;}
+.st-key-open-account [data-testid="stButton"] {height:100%;}
+[data-testid="stSidebar"] .st-key-open-account button {height:100%; border:0!important; border-radius:14px!important; background:transparent!important; box-shadow:none!important; color:transparent!important; outline:none!important; transform:none!important;}
+[data-testid="stSidebar"] .st-key-open-account button p {color:transparent!important;}
+.account-dialog-profile {padding:8px 0 20px; border-bottom:1px solid var(--line); margin-bottom:8px;}
+.account-dialog-profile .account-avatar {width:52px; height:52px; font-size:1rem;}
+.account-dialog-profile .account-info strong {font-size:1.1rem;}
+.account-details {margin:0 0 24px;}
+.account-details > div {display:grid; grid-template-columns:1fr 1.6fr; gap:16px; padding:14px 0; border-bottom:1px solid var(--line);}
+.account-details dt {color:var(--muted); font-size:.84rem;}
+.account-details dd {margin:0; color:var(--ink); font-size:.9rem; font-weight:600; overflow-wrap:anywhere;}
+[data-testid="stDialog"] [role="dialog"] {background:#fffaf5; border:1px solid #e9d9ca; border-radius:24px;}
+[data-testid="stSidebar"] .st-key-sidebar-account {background:#fffaf5; border-radius:18px; transition:background-color .16s ease;}
+[data-testid="stSidebar"] .st-key-sidebar-account:has(.st-key-account-trigger:hover) {background:#fff0e4;}
+[data-testid="stSidebar"] .st-key-sidebar-account:has(.st-key-open-account button:focus-visible) {outline:2px solid #b94922; outline-offset:2px;}
 [data-testid="stSidebar"] .st-key-sidebar-account .stButton button {justify-content:center; background:#fff; border:1px solid #e9d9ca; min-height:38px;}
 [data-testid="stSidebar"] .st-key-sidebar-account .stButton button > div {justify-content:center;}
+[data-testid="stSidebar"] .st-key-sidebar-account .stButton button:hover {transform:none; box-shadow:none;}
 .demo-badge {display:inline-block; background:#141a2e; color:#fff; border-radius:999px; padding:4px 11px; font-size:.66rem; font-weight:700; letter-spacing:.08em;}
 
 /* заголовок страницы — пастельный баннер */
