@@ -9,20 +9,21 @@ from backend import service
 from backend.schemas import kzt
 from ui.theme import apply_theme, card, deck, heading
 from ui.charts import activity_chart, downtime_chart
-from ui.open_data import page_open_data
+from ui import archive_workspace
 
 st.set_page_config(page_title="FixList · обходы, проблемы, решения", page_icon=str(Path(__file__).resolve().parent / "assets" / "favicon.png"), layout="wide")
 apply_theme()
 
 
 @st.cache_resource
-def _boot():
+def _boot(data_revision):
+    # Versioned primary-data migration; invalidates the previous cached bootstrap.
     service.bootstrap()
     service.start_notifications()
     return True
 
 
-_boot()
+_boot("kelmarsh-primary-v1")
 
 EXAMPLES = {
     "Станок №3 · ремень (повторяется)": "Линия 2, станок №3 встал в 14:10, порвался ремень. Поставили новый, простой 1,5 часа. Причину пока не установили.",
@@ -35,7 +36,7 @@ EXAMPLES = {
 }
 ROLES = {
     "worker": ["Обход", "Новая запись", "Мои задачи", "Спросить ИИ"],
-    "admin": ["Панель задач", "Спросить ИИ", "Состояние оборудования", "Сводка дня", "Аномалии", "План экономии", "История и эффект", "Сотрудники", "Реальные данные"],
+    "admin": ["Панель задач", "Спросить ИИ", "Состояние оборудования", "Сводка дня", "Аномалии", "План экономии", "История и эффект", "Сотрудники"],
 }
 ROLE_TITLE = {"worker": "Сотрудник", "admin": "Администратор"}
 ROLE_HINT = {
@@ -59,9 +60,6 @@ ISSUE_TEXT = {
 }
 ss = st.session_state
 status = service.status()
-EQUIPMENT = service.equipment_options()
-EQ_LABEL = {e["id"]: f"{e['id']} · {e['name']}" for e in EQUIPMENT}
-FAILURES = service.failure_options()
 
 
 # ---------------- главная и вход ----------------
@@ -102,7 +100,7 @@ def landing():
                 st.error("Неверный код компании, логин или PIN.")
             st.markdown('<div class="creds"><div class="demo-company"><span>Код компании</span>'
                         f'<strong>{html.escape(demo["code"])}</strong></div>'
-                        '<table aria-label="Данные для демовхода"><thead><tr><th>Роль</th><th>Логин</th><th>PIN</th></tr></thead><tbody>' +
+                        '<table aria-label="Данные для входа"><thead><tr><th>Роль</th><th>Логин</th><th>PIN</th></tr></thead><tbody>' +
                         "".join(f'<tr><td>{html.escape(u["name"].split()[0])}</td><td><strong>{html.escape(u["login"])}</strong></td>'
                                 f'<td><strong>{html.escape(u["pin"])}</strong></td></tr>' for u in demo["users"]) + '</tbody></table></div>',
                         unsafe_allow_html=True)
@@ -145,6 +143,13 @@ st.query_params["s"] = service.session_token(ss.user["id"])
 USER = ss.user
 ROLE = "admin" if USER["role"] == "admin" else "worker"
 service.use_company(USER["company_id"])
+if service.archive_context():
+    refreshed = service.user_from_token(st.query_params.get("s"))
+    if refreshed:
+        ss.user = USER = refreshed
+EQUIPMENT = service.equipment_options()
+EQ_LABEL = {e["id"]: f"{e['id']} · {e['name']}" for e in EQUIPMENT}
+FAILURES = service.failure_options()
 if ss.get("page") not in ROLES[ROLE]:
     ss.page = ROLES[ROLE][0]
 
@@ -235,6 +240,8 @@ with st.sidebar:
     st.markdown(f'<div class="workspace">{html.escape(USER["company_name"])}<small>Код компании: {html.escape(USER["company_code"])}</small></div>', unsafe_allow_html=True)
     for i, page in enumerate(ROLES[ROLE]):
         label = NAV_LABEL.get((ROLE, page), page)
+        if service.archive_context() and page == "Аномалии":
+            label = "Повторяющиеся сигналы"
         if st.button(f"0{i+1}   {label}", type="primary" if ss.page == page else "secondary", use_container_width=True, key=f"nav_{page}"):
             go(page)
     st.divider()
@@ -271,11 +278,15 @@ def page_new_record():
         with st.container(border=True):
             st.subheader("Что произошло на смене?")
             st.caption("Пишите привычными словами — на русском или казахском. Можно несколько станков в одной записи.")
-            ex_col, btn_col = st.columns([2.2, 1])
-            ex_name = ex_col.selectbox("Пример", list(EXAMPLES), label_visibility="collapsed")
-            if btn_col.button("Вставить пример", use_container_width=True):
-                ss.raw = EXAMPLES[ex_name]
-                ss.pop("analysis", None)
+            if service.archive_context():
+                with st.expander("Проверить разбор записи из практики · MaintIE"):
+                    archive_workspace.maintenance_examples()
+            else:
+                ex_col, btn_col = st.columns([2.2, 1])
+                ex_name = ex_col.selectbox("Пример", list(EXAMPLES), label_visibility="collapsed")
+                if btn_col.button("Вставить пример", use_container_width=True):
+                    ss.raw = EXAMPLES[ex_name]
+                    ss.pop("analysis", None)
             raw = st.text_area("Отчёт мастера", key="raw", height=170, placeholder="Какой станок? Что случилось? Как долго стоял?", label_visibility="collapsed")
             st.caption(f"{len(raw)} / 4000 символов · Без имён, телефонов и других персональных данных")
             if st.button("Разобрать запись  →", type="primary", use_container_width=True):
@@ -352,7 +363,7 @@ def review(raw):
             cause = c4.text_input("Причина (подтверждает мастер)", placeholder="Не установлена — выберите гипотезу ниже или впишите", key=ckey)
             action = c5.text_input("Что сделали", value=d.get("action") or "", key=f"act_{i}")
             parts = ", ".join(f"{p['name']} × {p['qty']}" for p in d.get("parts", [])) or "нет"
-            st.caption(f"Запчасти: {parts} · стоимость по справочнику: {kzt(d['parts_cost_kzt'])} ₸")
+            st.caption(f"Запчасти: {parts} · стоимость не указана" if d["parts_cost_kzt"] is None else f"Запчасти: {parts} · стоимость по справочнику: {kzt(d['parts_cost_kzt'])} ₸")
             render_hypotheses(d, ckey)
             edited.append({**d, "equipment_id": eq, "failure_type": ft, "downtime_min": None if ("downtime" in d["issues"] and mins == 0) else mins,
                            "cause": cause or None, "action": action or None})
@@ -464,13 +475,17 @@ def ticket_card(t):
     """Компактная пастельная карточка заявки."""
     import html as _h
     text = _h.escape(t["raw_text"].replace("ДЕМО · ", ""))
+    elapsed = archive_workspace.duration(t["source_record"]["duration_seconds"]) if t.get("source_record") else f'{t["downtime_min"]} мин'
     st.markdown(f'''<div class="tcard {STATUS_CLASS[t["status"]]}"><div class="tc-top">{_h.escape(t["status_label"])}</div>
         <div class="tc-title">{_h.escape(t["equipment_name"])}</div><div class="tc-text">{text}</div>
-        <div class="tc-foot">{_h.escape(t["failure_label"])} · {t["downtime_min"]} мин · {t["time"][5:]}</div></div>''', unsafe_allow_html=True)
+        <div class="tc-foot">{_h.escape(t["failure_label"])} · {elapsed} · {t["time"][5:]}</div></div>''', unsafe_allow_html=True)
 
 
 def ai_hints(t):
     hyps = service.ticket_hypotheses(t)
+    if service.archive_context():
+        st.caption("Причина и выполненный ремонт в исходном журнале не указаны. Результат проверки заполняет сотрудник FixList.")
+        return hyps
     st.markdown("**Анализ ИИ: вероятные причины и что проверить**")
     for h in hyps:
         st.markdown(f"- **{h['title']}** · {h['confidence']:.0%} — " + "; ".join(h["checks"]))
@@ -895,7 +910,12 @@ def page_history():
         st.info("Записей по этому запросу нет. Попробуйте номер станка или очистите поиск.")
 
 
-{"Спросить ИИ": page_ask, "Обход": page_inspection, "Новая запись": page_new_record, "Мои задачи": page_tasks, "Панель задач": page_board, "Состояние оборудования": page_health,
- "Сводка дня": page_brief, "Аномалии": page_anomalies, "План экономии": page_plan, "История и эффект": page_history,
- "Сотрудники": page_staff, "Реальные данные": page_open_data}[ss.page]()
+pages = {"Спросить ИИ": page_ask, "Обход": page_inspection, "Новая запись": page_new_record, "Мои задачи": page_tasks, "Панель задач": page_board, "Состояние оборудования": page_health,
+         "Сводка дня": page_brief, "Аномалии": page_anomalies, "План экономии": page_plan, "История и эффект": page_history, "Сотрудники": page_staff}
+if service.archive_context():
+    archive_workspace.source_banner()
+    pages.update({"Панель задач": lambda: archive_workspace.board(USER), "Состояние оборудования": archive_workspace.health,
+                  "Сводка дня": archive_workspace.daily, "Аномалии": archive_workspace.signals,
+                  "План экономии": archive_workspace.finance, "История и эффект": archive_workspace.history, "Спросить ИИ": archive_workspace.ask})
+pages[ss.page]()
 

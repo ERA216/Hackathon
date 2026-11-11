@@ -64,7 +64,7 @@ class Explanation(BaseModel):
 
 def kzt(v) -> str:
     """224000 -> '224 000' (неразрывный пробел не используем, чтобы текст было легко копировать)."""
-    return f"{float(v):,.0f}".replace(",", " ")
+    return "—" if v is None else f"{float(v):,.0f}".replace(",", " ")
 
 
 def num(v) -> str:

@@ -119,9 +119,8 @@ class PublicDataTests(unittest.TestCase):
 
     def test_streamlit_page_filters_and_text_analysis_offline(self):
         from streamlit.testing.v1 import AppTest
-        app = AppTest.from_string("from ui.theme import apply_theme\nfrom ui.open_data import page_open_data\napply_theme()\npage_open_data()\n", default_timeout=20).run()
+        app = AppTest.from_string("from ui.theme import apply_theme\nfrom ui.open_data import _kelmarsh, _maintie\napply_theme()\n_kelmarsh()\n_maintie()\n", default_timeout=20).run()
         self.assertFalse(app.exception)
-        self.assertEqual([tab.label for tab in app.tabs], ["Остановки Kelmarsh", "Разбор записи MaintIE", "Источники и лицензии"])
         app.selectbox(key="od-equipment").select("KEL01").run()
         self.assertFalse(app.exception)
         app.button(key="od-maintie-run").click().run()

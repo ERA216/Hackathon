@@ -6,13 +6,11 @@ from .schemas import FAILURE_LABELS, FailureType
 
 
 def bootstrap() -> None:
-    """Создать базу и демо-данные при первом запуске."""
+    """Initialize accounts, then replace the sample workspace with real source events."""
     db.init_db()
-    if db.is_empty() or db.get_meta("seed_version") != seed.SEED_VERSION:
-        seed.reset_demo()  # первая установка или новая версия тестовых данных: тестовая компания пересоздаётся (другие не трогаются)
-        db.set_meta("seed_version", seed.SEED_VERSION)
-    else:
-        seed.ensure_demo_company()
+    from . import archive
+    archive.install(seed.ensure_demo_company())
+    db.set_meta("seed_version", seed.SEED_VERSION)
 
 
 def status() -> dict:
@@ -24,6 +22,9 @@ def equipment_options() -> list[dict]:
 
 
 def failure_options() -> dict:
+    if db.source_profile():
+        from . import open_data
+        return {"kelmarsh:" + row["code"]: open_data.message_ru(row) for row in open_data.events()} | {t.value: FAILURE_LABELS[t.value] for t in FailureType}
     return {t.value: FAILURE_LABELS[t.value] for t in FailureType}
 
 
@@ -53,13 +54,16 @@ def save_record(raw: str, drafts: list[dict], mode: str = "ai", author: Optional
         ids = [db.add_incident(log_id, {**d, "parts_cost_kzt": d.get("parts_cost_kzt")}, conn=c) for d in drafts]
         notifications.queue_incidents(ids, conn=c)
     touched = {d["equipment_id"] for d in drafts}
-    signals = [s for s in analytics.anomalies() if s["equipment_id"] in touched]
+    signals = [] if db.source_profile() else [s for s in analytics.anomalies() if s["equipment_id"] in touched]
     return {"log_id": log_id, "incident_ids": ids, "signals": signals}
 
 
 # ---------- экран 2: аномалии ----------
 
 def dashboard() -> dict:
+    if db.source_profile():
+        from . import archive
+        return archive.dashboard()
     summary = analytics.equipment_summary()
     return {
         "window_days": config.ANALYSIS_WINDOW_DAYS,
@@ -108,6 +112,8 @@ def history(query: str = "", limit: int = 300) -> list[dict]:
 
 
 def effects() -> list[dict]:
+    if db.source_profile():
+        return []
     measures = {m["id"]: m for m in db.load_measures()}
     eq = db.equipment_map()
     out = []
@@ -139,6 +145,9 @@ def reset_demo() -> None:
 
 
 def ask_ai(question: str, history=None) -> dict:
+    if db.source_profile():
+        from . import archive
+        return archive.ask(question, history)
     from . import assistant
     return assistant.ask(question, history)
 
@@ -191,7 +200,8 @@ def _ticket(r: dict) -> dict:
             "downtime_min": r["downtime_min"], "raw_text": r["raw_text"], "author": r.get("author_role") or "", "cause": r["cause"],
             "status": r.get("status") or "new", "status_label": db.STATUS_LABELS.get(r.get("status") or "new"), "assignee": r.get("assignee"),
             "resolution": r.get("resolution"), "resolved_at": r.get("resolved_at"), "approved_by": r.get("approved_by"),
-            "escalation_note": r.get("escalation_note"), "is_demo": bool(r["is_demo"])}
+            "escalation_note": r.get("escalation_note"), "is_demo": bool(r["is_demo"]),
+            "source_id": r.get("source_id"), "source_dataset": r.get("source_dataset"), "source_record": r.get("source_record")}
 
 
 def tickets(statuses: Optional[list[str]] = None, author: Optional[str] = None, limit: int = 100) -> list[dict]:
@@ -208,12 +218,15 @@ def ticket_counts() -> dict:
     all_ = [_ticket(r) for r in db.incidents()]
     today = date.today().isoformat()
     out = {k: sum(t["status"] == k for t in all_) for k in ("new", "approved", "escalated")}
+    out["archived"] = sum(t["status"] == "archived" for t in all_)
     out["resolved_today"] = sum(t["status"] == "resolved" and (t["resolved_at"] or "")[:10] == today for t in all_)
     return out
 
 
 def ticket_hypotheses(t: dict) -> list[dict]:
     """Быстрые гипотезы причины для механика (по правилам, без вызова ИИ)."""
+    if db.source_profile():
+        return []
     from . import diagnose
     hist = diagnose.history(t["equipment_id"], t["failure_type"])
     return diagnose._present(diagnose.rule_rank(t["raw_text"], t["failure_type"], hist), "rules")
@@ -245,6 +258,32 @@ def reopen_ticket(incident_id: int) -> None:
 
 def use_company(company_id: int) -> None:
     db.set_company(company_id)
+    if db.source_profile():
+        from . import open_data
+        FAILURE_LABELS.update({"kelmarsh:" + row["code"]: open_data.message_ru(row) for row in open_data.events()})
+
+
+def archive_context():
+    return db.source_profile()
+
+
+def archive_report(equipment_id=None, start=None, end=None):
+    from . import archive
+    return archive.report(equipment_id, start, end)
+
+
+def archive_equipment():
+    from . import archive
+    return archive.equipment()
+
+
+def archive_daily(day):
+    from . import archive
+    return archive.daily(day)
+
+
+def archive_record(incident_id):
+    return next((row for row in db.incidents() if row["id"] == incident_id), None)
 
 
 def login(company_code: str, login_: str, pin: str):

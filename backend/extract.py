@@ -189,7 +189,7 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
                 d["cause"] = None
                 issues.append("cause_removed")
         # 3б. Тип поломки не назван — подставляем самый частый по истории станка (мастер подтверждает)
-        if d["failure_type"] == "other" and d["equipment_id"] and detect_failure(raw) == "other":
+        if not db.source_profile() and d["failure_type"] == "other" and d["equipment_id"] and detect_failure(raw) == "other":
             recent = [r["failure_type"] for r in db.incidents(d["equipment_id"])[-10:] if r["failure_type"] != "other"]
             if recent:
                 d["failure_type"] = max(set(recent), key=recent.count)
@@ -201,7 +201,7 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
         d["needs_review"] = bool(d["issues"])
         d["failure_label"] = FAILURE_LABELS.get(d["failure_type"], d["failure_type"])
         d["equipment_name"] = eq_map[d["equipment_id"]]["name"] if d["equipment_id"] else None
-        d["parts_cost_kzt"] = sum(db.part_price(p["name"]) * p["qty"] for p in d.get("parts", []))
+        d["parts_cost_kzt"] = None if db.source_profile() else sum(db.part_price(p["name"]) * p["qty"] for p in d.get("parts", []))
         drafts.append(d)
     return drafts, list(dict.fromkeys(questions))
 
@@ -210,7 +210,7 @@ def extract(raw: str) -> dict:
     """Возвращает {drafts, questions, mode, warning}. Никогда не бросает исключение из-за ИИ."""
     raw = (raw or "").strip()
     if not raw:
-        raise ValueError("Пустой текст смены. Опишите, что произошло, или вставьте демо-пример.")
+            raise ValueError("Пустой текст смены. Опишите, что произошло с оборудованием.")
     if len(raw) > 4000:
         raise ValueError("Текст слишком длинный (больше 4000 символов). Разбейте отчёт на несколько записей.")
     warning, mode = None, "ai"
@@ -224,7 +224,7 @@ def extract(raw: str) -> dict:
         warning = None if not config.ai_enabled() else e.user_message
     drafts, questions = validate(raw, result)
     for d in drafts:  # шаг 1б: гипотезы о причине по симптомам и истории станка
-        if d["equipment_id"]:
+        if d["equipment_id"] and not db.source_profile():
             dg = diagnose.diagnose(raw, d["equipment_id"], d["failure_type"])
             d["hypotheses"], d["diagnosis_mode"], d["history"] = dg["hypotheses"], dg["mode"], dg["history"]
         else:

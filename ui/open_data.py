@@ -87,7 +87,8 @@ def _event_detail(rows):
         st.caption("Русское название — перевод для интерфейса. Английское сообщение и временные метки сохранены. Расходы на ремонт в источнике не указаны.")
 
 
-def _kelmarsh():
+def _kelmarsh(use_workspace=False):
+    from backend import service
     meta = data.manifest()["kelmarsh"]
     _sourcebar("Kelmarsh · Великобритания", f'{meta["count"]} событий · 6 турбин · архив 2016 года · UTC', meta["license"], meta["url"])
     st.caption("Вынужденные остановки по классификации источника. Среди них есть защитные и ручные остановки; это не число подтверждённых механических поломок.")
@@ -102,7 +103,10 @@ def _kelmarsh():
         return
     start, end = period
     ids = [f"KEL{i:02d}" for i in range(1, 7)] if equipment == "all" else [equipment]
-    rows = data.select_events(ids, start, end)
+    if use_workspace:
+        rows = [row for row in service.archive_report(start=start, end=end)["rows"] if row["equipment_id"] in ids]
+    else:
+        rows = data.select_events(ids, start, end)
     stats = data.summary(rows, start, end)
     with st.container(key="od-metrics"):
         columns = st.columns(4)
@@ -241,15 +245,3 @@ def _sources():
         with st.expander("Лицензия MaintIE"):
             st.text((data.DATA / "MaintIE_LICENSE.md").read_text(encoding="utf-8"))
     st.download_button("Скачать сведения об источниках · JSON", json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8"), "fixlist_data_sources.json", "application/json", key="od-manifest-download")
-
-
-def page_open_data():
-    with st.container(key="open-data-root"):
-        heading("09 / Реальные данные", "От события —\nк понятной картине.", "Открытые промышленные данные в FixList: история остановок оборудования и проверка разбора технических записей.")
-        kelmarsh, maintie, sources = st.tabs(["Остановки Kelmarsh", "Разбор записи MaintIE", "Источники и лицензии"])
-        with kelmarsh:
-            _kelmarsh()
-        with maintie:
-            _maintie()
-        with sources:
-            _sources()
