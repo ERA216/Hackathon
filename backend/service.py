@@ -1,7 +1,7 @@
 """Фасад для интерфейса: всё, что нужно экранам, в одном месте. UI вызывает только эти функции."""
 from typing import Optional
 
-from . import advisor, analytics, auth, briefing, config, db, extract, seed
+from . import advisor, analytics, auth, briefing, config, db, extract, notifications, seed
 from .schemas import FAILURE_LABELS, FailureType
 
 
@@ -51,6 +51,7 @@ def save_record(raw: str, drafts: list[dict], mode: str = "ai", author: Optional
     with db.connect() as c:
         log_id = db.add_shift_log(raw.strip(), "processed", mode, conn=c, author=author)
         ids = [db.add_incident(log_id, {**d, "parts_cost_kzt": d.get("parts_cost_kzt")}, conn=c) for d in drafts]
+        notifications.queue_incidents(ids, conn=c)
     touched = {d["equipment_id"] for d in drafts}
     signals = [s for s in analytics.anomalies() if s["equipment_id"] in touched]
     return {"log_id": log_id, "incident_ids": ids, "signals": signals}
@@ -167,6 +168,7 @@ def save_inspection(rows: list[dict], author: str) -> dict:
                 incident_id = db.add_incident(log_id, {"equipment_id": r["equipment_id"], "failure_type": extract.detect_failure(note),
                                                        "downtime_min": int(r.get("downtime_min") or 0), "parts": [], "cause": None,
                                                        "action": None, "confidence": 1.0}, conn=c)
+                notifications.queue_incidents([incident_id], conn=c)
             cards.append(incident_id)
         db.add_inspection(r["equipment_id"], r["state"], (r.get("note") or "").strip() or None, author, incident_id)
     return {"checked": len(rows), "cards": cards}
@@ -271,3 +273,23 @@ def list_users(company_id: int) -> list[dict]:
 
 def demo_credentials() -> dict:
     return {"code": seed.DEMO_CODE, "users": [{"name": n, "role": r, "login": l, "pin": p} for n, r, l, p in seed.DEMO_USERS]}
+
+
+def notification_settings(user_id: int) -> dict:
+    return notifications.settings(user_id)
+
+
+def save_notification_settings(user_id: int, recipient: str, enabled: bool) -> None:
+    notifications.save_settings(user_id, recipient, enabled)
+
+
+def test_notification(user_id: int) -> None:
+    notifications.queue_test(user_id)
+
+
+def retry_notifications(user_id: int) -> None:
+    notifications.retry_failed(user_id)
+
+
+def start_notifications() -> None:
+    notifications.start_worker()

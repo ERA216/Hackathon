@@ -68,6 +68,23 @@ CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, company_name TEXT NOT NULL,
     city TEXT, note TEXT, company_id INTEGER
 );
+CREATE TABLE IF NOT EXISTS email_notification_settings (
+    company_id INTEGER PRIMARY KEY REFERENCES companies(id) ON DELETE CASCADE,
+    recipient TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0,1)),
+    updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS email_outbox (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    incident_id INTEGER REFERENCES incidents(id) ON DELETE CASCADE,
+    event TEXT NOT NULL, recipient TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL,
+    message_id TEXT NOT NULL, created_at TEXT NOT NULL,
+    state TEXT NOT NULL DEFAULT 'pending' CHECK (state IN ('pending','sending','sent','failed','cancelled')),
+    attempts INTEGER NOT NULL DEFAULT 0, next_attempt_at TEXT NOT NULL,
+    locked_at TEXT, sent_at TEXT, last_error TEXT,
+    UNIQUE(incident_id, event)
+);
+CREATE INDEX IF NOT EXISTS idx_email_outbox_ready ON email_outbox(state, next_attempt_at);
 """
 SCOPED_TABLES = ("shift_logs", "incidents", "recommendations", "applied_measures")
 INCIDENT_STATUS_COLUMNS = {"status": "TEXT NOT NULL DEFAULT 'new'", "assignee": "TEXT", "taken_at": "TEXT", "resolved_at": "TEXT",

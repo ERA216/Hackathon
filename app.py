@@ -2,20 +2,23 @@
 import streamlit as st
 import html
 import time
+from pathlib import Path
 from urllib.parse import urlencode
 
 from backend import service
 from backend.schemas import kzt
 from ui.theme import apply_theme, card, deck, heading
 from ui.charts import activity_chart, downtime_chart
+from ui.open_data import page_open_data
 
-st.set_page_config(page_title="FixList · обходы, проблемы, решения", page_icon="◆", layout="wide")
+st.set_page_config(page_title="FixList · обходы, проблемы, решения", page_icon=str(Path(__file__).resolve().parent / "assets" / "favicon.png"), layout="wide")
 apply_theme()
 
 
 @st.cache_resource
 def _boot():
     service.bootstrap()
+    service.start_notifications()
     return True
 
 
@@ -32,7 +35,7 @@ EXAMPLES = {
 }
 ROLES = {
     "worker": ["Обход", "Новая запись", "Мои задачи", "Спросить ИИ"],
-    "admin": ["Панель задач", "Спросить ИИ", "Состояние оборудования", "Сводка дня", "Аномалии", "План экономии", "История и эффект", "Сотрудники"],
+    "admin": ["Панель задач", "Спросить ИИ", "Состояние оборудования", "Сводка дня", "Аномалии", "План экономии", "История и эффект", "Сотрудники", "Реальные данные"],
 }
 ROLE_TITLE = {"worker": "Сотрудник", "admin": "Администратор"}
 ROLE_HINT = {
@@ -97,8 +100,11 @@ def landing():
                     ss.page = ROLES[user["role"]][0]
                     st.rerun()
                 st.error("Неверный код компании, логин или PIN.")
-            st.markdown("<div class='creds'>" + f"<span>Код <b>{demo['code']}</b></span>" +
-                        "".join(f"<span>{u['name'].split()[0]}: <b>{u['login']} / {u['pin']}</b></span>" for u in demo["users"]) + "</div>",
+            st.markdown('<div class="creds"><div class="demo-company"><span>Код компании</span>'
+                        f'<strong>{html.escape(demo["code"])}</strong></div>'
+                        '<table aria-label="Данные для демовхода"><thead><tr><th>Роль</th><th>Логин</th><th>PIN</th></tr></thead><tbody>' +
+                        "".join(f'<tr><td>{html.escape(u["name"].split()[0])}</td><td><strong>{html.escape(u["login"])}</strong></td>'
+                                f'<td><strong>{html.escape(u["pin"])}</strong></td></tr>' for u in demo["users"]) + '</tbody></table></div>',
                         unsafe_allow_html=True)
     with right:
         with st.container(border=True):
@@ -186,6 +192,38 @@ def account_dialog():
             for label, value in details
         ) + '</dl>', unsafe_allow_html=True,
     )
+    if ROLE == "admin":
+        service.use_company(USER["company_id"])
+        mail = service.notification_settings(USER["id"])
+        st.subheader("Уведомления о поломках")
+        st.caption("На указанную почту будут приходить новые заявки и замечания с обходов вашей компании.")
+        with st.form("email-notifications"):
+            recipient = st.text_input("Почта для уведомлений", value=mail["recipient"], placeholder="name@gmail.com")
+            enabled = st.checkbox("Получать уведомления о новых проблемах", value=mail["enabled"])
+            save_mail = st.form_submit_button("Сохранить уведомления", use_container_width=True)
+        if save_mail:
+            try:
+                service.save_notification_settings(USER["id"], recipient, enabled)
+            except ValueError as exc:
+                st.error(str(exc))
+            else:
+                mail = service.notification_settings(USER["id"])
+                st.success("Настройки уведомлений сохранены.")
+        if not mail["configured"]:
+            st.info("Почта отправителя ещё не подключена на сервере. Адрес можно сохранить сейчас; отправка начнётся после подключения.")
+        elif mail["enabled"]:
+            st.caption(f"В очереди: {mail['pending']} · отправлено: {mail['sent']} · не доставлено: {mail['failed']}")
+            if st.button("Отправить тестовое письмо", key="test-notification", use_container_width=True):
+                try:
+                    service.test_notification(USER["id"])
+                    st.success("Тестовое письмо добавлено в очередь отправки.")
+                except ValueError as exc:
+                    st.error(str(exc))
+            if mail["failed"]:
+                st.warning(mail["last_error"])
+                if st.button("Повторить отправку недоставленных писем", key="retry-notifications", use_container_width=True):
+                    service.retry_notifications(USER["id"])
+                    st.success("Письма снова поставлены в очередь.")
     if st.button("Выйти из аккаунта", key="profile-logout", use_container_width=True):
         logout()
 
@@ -859,5 +897,5 @@ def page_history():
 
 {"Спросить ИИ": page_ask, "Обход": page_inspection, "Новая запись": page_new_record, "Мои задачи": page_tasks, "Панель задач": page_board, "Состояние оборудования": page_health,
  "Сводка дня": page_brief, "Аномалии": page_anomalies, "План экономии": page_plan, "История и эффект": page_history,
- "Сотрудники": page_staff}[ss.page]()
+ "Сотрудники": page_staff, "Реальные данные": page_open_data}[ss.page]()
 
