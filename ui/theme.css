@@ -71,6 +71,11 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .metric-label {font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#2c3150b8; position:relative;}
 .metric-value {font-size:2.2rem; font-weight:800; line-height:1.5; letter-spacing:-.05em; color:var(--ink); position:relative;}
 .metric-note {font-size:.78rem; color:#3c4160b0; position:relative;}
+.st-key-brief-metrics .metric-card {box-sizing:border-box; min-height:174px;}
+.st-key-brief-metrics .metric-label {min-height:2.6em;}
+.st-key-brief-metrics .metric-note {min-height:2.8em; line-height:1.4;}
+.st-key-daily-brief {margin:4px 0 18px;}
+.st-key-daily-brief [data-testid="stVerticalBlock"] {gap:.8rem;}
 
 /* сигнал */
 .signal {padding:22px 26px; background:var(--coral); border-radius:24px; margin:4px 0 22px; position:relative; box-shadow:0 14px 30px #f05a2818;}

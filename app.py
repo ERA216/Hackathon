@@ -323,43 +323,44 @@ def saved_signals():
 def page_brief():
     heading("01 / Сводка дня", "Что произошло сегодня\nи что проверить.", "Код собирает факты из базы: новые записи, повторяющиеся поломки, потери. ИИ объясняет главное простыми словами. Числа в тексте ИИ сверяются с базой.")
     sm = service.today_summary()
-    c = st.columns(4)
-    with c[0]:
-        card("Загружено сегодня", str(sm["logs_today"]), f"Инцидентов: {sm['incidents_today']}", True)
-    with c[1]:
-        card("Простой сегодня", f"{sm['downtime_h_today']} ч".replace(".", ","), "По записям мастеров")
-    with c[2]:
-        card("Потери сегодня", f"{kzt(sm['loss_today_kzt'])} ₸", "Простой × стоимость часа + запчасти")
-    with c[3]:
-        card("В базе записей", str(sm["total_logs"]), f"История с {sm['history_since']}")
+    with st.container(key="brief-metrics"):
+        c = st.columns(4)
+        with c[0]:
+            card("Загружено сегодня", str(sm["logs_today"]), f"Инцидентов: {sm['incidents_today']}", True)
+        with c[1]:
+            card("Простой сегодня", f"{sm['downtime_h_today']} ч".replace(".", ","), "По записям мастеров")
+        with c[2]:
+            card("Потери сегодня", f"{kzt(sm['loss_today_kzt'])} ₸", "Простой × стоимость часа + запчасти")
+        with c[3]:
+            card("В базе записей", str(sm["total_logs"]), f"История с {sm['history_since']}")
 
-    left, right = st.columns([1.5, 1], gap="large")
-    with left:
-        key = (sm["total_logs"], service.status()["ai_enabled"])
-        if ss.get("brief_key") != key or st.button("Обновить сводку"):
-            with st.spinner("ИИ готовит сводку по данным из базы…"):
-                ss.brief, ss.brief_key = service.daily_brief(), key
-        b = ss.brief
-        with st.container(border=True):
-            st.caption("СВОДКА ИИ · числа сверены с базой" if b["mode"] == "ai" else "СВОДКА ПО ШАБЛОНУ · без ИИ")
-            st.subheader(b["headline"])
-            for pt in b["points"]:
-                st.markdown(f"- {pt}")
-            if b.get("warning"):
-                st.caption("" + b["warning"])
-            if b["priorities"]:
-                st.markdown("**Приоритеты на сегодня**")
-                for i, pr in enumerate(b["priorities"], 1):
-                    st.markdown(f"{i}. **{pr['equipment']}** — {pr['action']}")
-    with right:
-        st.subheader("Загружено сегодня")
-        if sm["records"]:
-            for r in sm["records"]:
+    key = (sm["total_logs"], service.status()["ai_enabled"])
+    if ss.get("brief_key") != key or st.button("Обновить сводку"):
+        with st.spinner("ИИ готовит сводку по данным из базы…"):
+            ss.brief, ss.brief_key = service.daily_brief(), key
+    b = ss.brief
+    with st.container(border=True, key="daily-brief"):
+        st.caption("СВОДКА ИИ · числа сверены с базой" if b["mode"] == "ai" else "СВОДКА ПО ШАБЛОНУ · без ИИ")
+        st.subheader(b["headline"])
+        for pt in b["points"]:
+            st.markdown(f"- {pt}")
+        if b.get("warning"):
+            st.caption("" + b["warning"])
+        if b["priorities"]:
+            st.markdown("**Приоритеты на сегодня**")
+            for i, pr in enumerate(b["priorities"], 1):
+                st.markdown(f"{i}. **{pr['equipment']}** — {pr['action']}")
+
+    st.subheader("Загружено сегодня")
+    if sm["records"]:
+        record_columns = st.columns(2, gap="large")
+        for i, r in enumerate(sm["records"]):
+            with record_columns[i % 2]:
                 with st.expander(f"{r['time']} · {r['equipment_name']} · {r['downtime_min']} мин"):
                     st.write(r["raw_text"])
                     st.caption(f"{r['failure_label']} · причина: {r['cause'] or 'не установлена'} · потери ≈ {kzt(r['loss_kzt'])} ₸")
-        else:
-            st.info("Сегодня мастера ещё ничего не записали.")
+    else:
+        st.info("Сегодня мастера ещё ничего не записали.")
 
     if sm["per_day"]:
         activity_chart(sm["per_day"])
