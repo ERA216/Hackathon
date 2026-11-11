@@ -4,6 +4,7 @@ import streamlit as st
 from backend import service
 from backend.schemas import kzt
 from ui.theme import apply_theme, card, deck, heading
+from ui.charts import bar_chart
 
 st.set_page_config(page_title="FixList · обходы, проблемы, решения", page_icon="◆", layout="wide")
 apply_theme()
@@ -349,9 +350,10 @@ def page_brief():
                     st.caption(f"{r['failure_label']} · причина: {r['cause'] or 'не установлена'} · потери ≈ {kzt(r['loss_kzt'])} ₸")
         else:
             st.info("Сегодня мастера ещё ничего не записали.")
-        if sm["per_day"]:
-            st.caption("Записей по дням (последние 7 дней)")
-            st.bar_chart(sm["per_day"], x="Дата", y="Записей", color="#fa7946", height=180)
+
+    if sm["per_day"]:
+        st.subheader("Записи за последние 7 дней")
+        bar_chart(sm["per_day"], "Дата", "Записей", y_title="Количество записей", height=320, integer=True)
 
     cnt = service.ticket_counts()
     st.markdown(f"**Заявки:** нужна помощь — {cnt['escalated']} · ждут одобрения — {cnt['new']} · решают сотрудники — {cnt['approved']} · решено сегодня — {cnt['resolved_today']}")
@@ -679,19 +681,17 @@ def page_anomalies():
     st.markdown(f'<div class="signal"><div class="signal-title">↗ &nbsp; {s["title"]}</div><p>{s["message"]}</p></div>', unsafe_allow_html=True)
     st.caption(f"Расчёт потерь: {s['formula']}")
     ev = service.incident_evidence(s["incident_ids"])
-    a, b = st.columns([1.7, 1])
-    with a:
-        st.subheader("Длительность остановок")
-        st.caption("Часы простоя по инцидентам периода")
-        st.bar_chart({"Дата": [e["date"][5:] for e in ev], "Часы": [round(e["downtime_min"] / 60, 2) for e in ev]}, x="Дата", y="Часы", color="#fa7946")
-    with b:
-        st.subheader("На чём основан сигнал")
-        for e in ev:
-            with st.expander(f"#{e['id']} · {e['date']} · {e['downtime_min']} мин"):
-                st.write(e["raw_text"])
-        if st.button("Посмотреть план экономии →", type="primary"):
-            ss.plan_target = (s["equipment_id"], s["failure_type"])
-            go("План экономии")
+    st.subheader("Длительность остановок")
+    st.caption("Часы простоя по инцидентам периода")
+    bar_chart({"Дата": [e["date"][5:] for e in ev], "Часы": [round(e["downtime_min"] / 60, 2) for e in ev]},
+              "Дата", "Часы", y_title="Простой, часы", height=400)
+    st.subheader("На чём основан сигнал")
+    for e in ev:
+        with st.expander(f"#{e['id']} · {e['date']} · {e['downtime_min']} мин"):
+            st.write(e["raw_text"])
+    if st.button("Посмотреть план экономии →", type="primary"):
+        ss.plan_target = (s["equipment_id"], s["failure_type"])
+        go("План экономии")
     with st.expander("Потери по всем станкам"):
         st.dataframe([{"Станок": r["equipment_name"], "Поломок": r["failures"], "Простой, ч": r["downtime_h"], "Потери, ₸": r["loss_kzt"]} for r in dash["by_equipment"]],
                      use_container_width=True, hide_index=True)
@@ -734,7 +734,6 @@ def page_plan():
         if p.get("warning"):
             st.caption("" + p["warning"])
         st.caption(f"Базовые потери: {st_['formula']} · источники: " + ", ".join(f"#{i}" for i in st_["incident_ids"]))
-    st.info("Меры сравниваются отдельно, их экономия не суммируется. Перед внедрением решение проверяет механик.")
     applied = service.applied_set()
     for i, m in enumerate(p["measures"]):
         with st.container(border=True):

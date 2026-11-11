@@ -8,7 +8,6 @@
 html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp textarea, .stApp button, .stApp h1, .stApp h2, .stApp h3, .stApp h4,
 [data-testid="stMarkdownContainer"], [data-testid="stCaptionContainer"], [data-testid="stSidebar"] {font-family:'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif!important;}
 .stApp {background:
-  radial-gradient(#d9d3c6 1px, transparent 1.2px) 0 0/22px 22px,
   radial-gradient(900px 600px at 100% -10%, #ffd9c2 0%, transparent 60%), radial-gradient(800px 700px at -10% 35%, #ffe3d6 0%, transparent 60%),
   radial-gradient(900px 700px at 60% 120%, #ffe9b5 0%, transparent 55%), var(--paper); color:var(--ink);}
 
@@ -51,15 +50,15 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .pagehead .intro {color:#3b4058!important; margin-bottom:.4rem;}
 .pagehead .art {position:absolute; right:26px; bottom:14px; width:230px; height:170px; fill:none; stroke:#1d2340; stroke-width:2; opacity:.18; stroke-linecap:round;}
 
-/* ИИ предупреждает — тёмная карта-акцент */
-.warn {background:#141a2e; color:#fff; border-radius:26px; padding:22px 26px 14px; margin:0 0 12px; position:relative; box-shadow:0 18px 40px #141a2e33;}
-.warn::before {content:""; position:absolute; inset:9px; border:1.4px dashed #ffffff26; border-radius:19px; pointer-events:none;}
+/* ИИ предупреждает — мягкая персиковая карта-акцент */
+.warn {background:linear-gradient(135deg,#ffe2ce 0%,#fff1df 60%,#fff6e8 100%); color:var(--ink); border-radius:26px; padding:22px 26px 14px; margin:0 0 12px; position:relative; box-shadow:0 18px 40px #b8753d14;}
+.warn::before {content:""; position:absolute; inset:9px; border:1.4px dashed #ffffffb8; border-radius:19px; pointer-events:none;}
 .warn-head {display:flex; gap:12px; align-items:center; margin-bottom:10px; position:relative;}
 .warn-tag {background:#f05a28; color:#fff; border-radius:999px; padding:5px 12px; font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;}
-.warn-sub {color:#b9bdd0; font-size:.84rem;}
-.warn-row {display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; padding:10px 0; border-top:1px solid #ffffff14; position:relative; color:#fff;}
-.warn-row b {color:#fff; font-size:1.02rem;}
-.warn-meta {color:#c9ccdb; font-size:.9rem;}
+.warn-sub {color:#665849; font-size:.84rem;}
+.warn-row {display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; padding:10px 0; border-top:1px solid #9b6d4826; position:relative; color:var(--ink);}
+.warn-row b {color:var(--ink); font-size:1.02rem;}
+.warn-meta {color:#594d43; font-size:.9rem;}
 
 /* метрики — пастельные карты */
 .metric-card {min-height:132px; padding:20px 22px; border-radius:24px; margin-bottom:16px; position:relative; overflow:hidden; background:#fff;
@@ -106,16 +105,19 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .creds {display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
 .creds span {background:var(--lilac); border-radius:999px; padding:6px 12px; font-size:.82rem; color:var(--ink);}
 
-/* поле «Спросить ИИ» — заметное */
-[data-testid="stChatInput"] {border:2px solid var(--ink)!important; border-radius:22px!important; background:#fff!important;
-  box-shadow:0 0 0 6px #f05a2822, 0 18px 40px #141a2e26!important; padding:4px 6px!important;}
-[data-testid="stChatInput"]:focus-within {border-color:var(--accent)!important; box-shadow:0 0 0 7px #f05a2833, 0 18px 40px #141a2e26!important;}
-[data-testid="stChatInput"] textarea {font-size:1.05rem!important; color:var(--ink)!important;}
+/* поле чата — единая поверхность без вложенных рамок */
+[data-testid="stChatInput"] {border:1px solid #e3cdbb!important; border-radius:24px!important; background:#fffaf5!important;
+  box-shadow:0 6px 22px #83563512!important; padding:0!important;}
+[data-testid="stChatInput"]:focus-within {border-color:#c77c52!important; box-shadow:0 6px 22px #83563518!important;}
+[data-testid="stChatInput"] > div {border:none!important; border-radius:inherit!important; background:transparent!important; box-shadow:none!important;}
+[data-testid="stChatInput"] div {background:transparent!important;}
+[data-testid="stChatInput"] textarea {font-size:1.05rem!important; color:var(--ink)!important; background:transparent!important;
+  border:none!important; outline:none!important; box-shadow:none!important;}
 [data-testid="stChatInput"] textarea::placeholder {color:#5f6577!important; opacity:1;}
 [data-testid="stChatInputSubmitButton"] {background:var(--accent)!important; border-radius:999px!important; opacity:1!important;}
 [data-testid="stChatInputSubmitButton"] svg {color:#fff!important; fill:#fff!important;}
 [data-testid="stBottomBlockContainer"], [data-testid="stBottom"] > div {background:transparent!important;}
-.ask-label {display:inline-block; background:var(--ink); color:#fff; border-radius:999px; padding:6px 14px; font-size:.78rem; font-weight:700; letter-spacing:.06em; margin:10px 0 6px;}
+.ask-label {display:inline-block; background:#ffe2ce; color:#7d391f; border-radius:999px; padding:6px 14px; font-size:.78rem; font-weight:700; letter-spacing:.06em; margin:10px 0 6px;}
 [data-testid="stChatMessage"] {background:#ffffffd9; border-radius:20px; padding:14px 16px; box-shadow:0 10px 24px #2a2f4a10; margin-bottom:8px;}
 
 /* карточки заявок и аппаратов */
@@ -144,20 +146,20 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVert
   color:var(--ink); min-height:44px; font-weight:600; padding:0 20px; transition:transform .2s, box-shadow .2s, background .2s;}
 .stButton button:hover, [data-testid="stFormSubmitButton"] button:hover {border-color:var(--ink); color:var(--ink); transform:translateY(-1px); box-shadow:0 8px 18px #2a2f4a18;}
 .stButton button[kind="primary"], [data-testid="stFormSubmitButton"] button[kind="primary"], [data-testid="stFormSubmitButton"] button[kind="primaryFormSubmit"] {
-  background:var(--ink)!important; color:#fff!important; border-color:var(--ink)!important;}
+  background:#b94922!important; color:#fff!important; border-color:#b94922!important;}
 .stButton button[kind="primary"]:hover, [data-testid="stFormSubmitButton"] button[kind="primaryFormSubmit"]:hover {background:var(--accent)!important; border-color:var(--accent)!important;}
 .stButton button p, [data-testid="stFormSubmitButton"] button p {color:inherit!important; font-weight:600;}
 .stButton button[kind="primary"] *, [data-testid="stFormSubmitButton"] button[kind="primary"] *, [data-testid="stFormSubmitButton"] button[kind="primaryFormSubmit"] * {color:#fff!important;}
 [data-testid="stSidebar"] .stButton button {justify-content:flex-start; padding-left:18px; border-color:transparent; background:transparent; box-shadow:none; color:var(--ink);}
 [data-testid="stSidebar"] .stButton button > div {justify-content:flex-start; width:100%;}
 [data-testid="stSidebar"] .stButton button:hover {background:#fff; border-color:var(--line);}
-[data-testid="stSidebar"] .stButton button[kind="primary"] {background:var(--ink)!important; color:#fff!important;}
+[data-testid="stSidebar"] .stButton button[kind="primary"] {background:#b94922!important; color:#fff!important;}
 [data-testid="stSidebar"] .stButton button[kind="primary"] * {color:#fff!important;}
 /* горизонтальные переключатели как сегменты */
 [data-testid="stRadio"] [role="radiogroup"] {gap:8px!important; flex-wrap:wrap;}
 [data-testid="stRadio"] label[data-baseweb="radio"] {background:#fff; border:1px solid var(--line); border-radius:999px; padding:8px 16px!important; margin:0!important; box-shadow:0 4px 12px #2a2f4a0d;}
 [data-testid="stRadio"] label[data-baseweb="radio"] > div:first-child {display:none!important;}
-[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) {background:var(--ink); border-color:var(--ink);}
+[data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) {background:#b94922; border-color:#b94922;}
 [data-testid="stRadio"] label[data-baseweb="radio"]:has(input:checked) * {color:#fff!important;}
 [data-testid="stRadio"] label[data-baseweb="radio"] p {font-weight:600; margin:0;}
 
@@ -166,9 +168,16 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVert
 [data-testid="stAlertContentInfo"], [data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) {background:#fff3e6!important;}
 [data-testid="stExpander"] {background:#ffffffc7; border:1px solid var(--line)!important; border-radius:18px!important;}
 [data-testid="stExpander"] summary p {font-weight:600;}
+[data-testid="stExpander"] summary {background:#fff3e6!important; color:var(--ink2)!important;}
+[data-testid="stExpander"] summary:hover {background:#ffe8d3!important;}
+[data-testid="stAlert"] {background:#fff3e6!important; color:var(--ink2)!important;}
 [data-testid="stTabs"] [role="tab"] {font-weight:600;}
 [data-testid="stTabs"] [aria-selected="true"] {color:var(--ink)!important;}
 [data-testid="stDataFrame"], [data-testid="stDataEditor"] {border-radius:18px; overflow:hidden; border:1px solid var(--line);}
+[data-testid="stVegaLiteChart"] {background:#fffaf5; border:1px solid #eadecf; border-radius:22px; padding:14px 8px; overflow:hidden;}
+[data-testid="stVegaLiteChart"] [data-testid="stElementToolbar"],
+[data-testid="stFullScreenFrame"]:has([data-testid="stVegaLiteChart"]) [data-testid="stElementToolbar"],
+[data-testid="stVegaLiteChart"] .vega-actions {display:none!important;}
 hr {border-color:var(--line)!important;}
 
 @media(max-width:900px) {
