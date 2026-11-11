@@ -160,18 +160,28 @@ def flow():
 # ---------------- боковая панель ----------------
 with st.sidebar:
     st.markdown(brand_link() + '<div class="brand-sub">Обходы · проблемы · решения</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="workspace">&nbsp; {USER["company_name"]}<small>Код компании: {USER["company_code"]}</small></div>', unsafe_allow_html=True)
-    st.markdown(f"**{USER['display_name']}** · {ROLE_TITLE[ROLE]}")
+    st.markdown(f'<div class="workspace">{html.escape(USER["company_name"])}<small>Код компании: {html.escape(USER["company_code"])}</small></div>', unsafe_allow_html=True)
     for i, page in enumerate(ROLES[ROLE]):
         label = NAV_LABEL.get((ROLE, page), page)
         if st.button(f"0{i+1}   {label}", type="primary" if ss.page == page else "secondary", use_container_width=True, key=f"nav_{page}"):
             go(page)
     st.divider()
-    if st.button("Выйти", use_container_width=True):
-        for k in list(ss.keys()):
-            del ss[k]
-        st.query_params.clear()
-        st.rerun()
+    with st.container(border=True, key="sidebar-account"):
+        initials = "".join(part[0] for part in USER["display_name"].split()[:2]).upper()
+        account_detail = ROLE_TITLE[ROLE] + (f' · {USER["login"]}' if USER.get("login") else "")
+        st.markdown(
+            '<div class="account-profile">'
+            f'<div class="account-avatar" aria-hidden="true">{html.escape(initials)}</div>'
+            '<div class="account-info"><span>Аккаунт</span>'
+            f'<strong>{html.escape(USER["display_name"])}</strong>'
+            f'<small>{html.escape(account_detail)}</small></div></div>',
+            unsafe_allow_html=True,
+        )
+        if st.button("Выйти", use_container_width=True):
+            for k in list(ss.keys()):
+                del ss[k]
+            st.query_params.clear()
+            st.rerun()
 
 
 
