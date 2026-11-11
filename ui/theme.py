@@ -14,16 +14,16 @@ ART = ('<svg viewBox="0 0 220 160" class="art"><circle cx="150" cy="70" r="52"/>
 
 
 def heading(kicker, title, description):
-    st.session_state["_card_i"] = 0  # каждая страница начинает палитру карточек заново
     tone = BANNERS[sum(map(ord, kicker)) % len(BANNERS)]
     st.markdown(f'<div class="pagehead {tone}"><div class="ph-text"><div class="eyebrow">{html.escape(kicker)}</div>'
                 f'<h1>{html.escape(title)}</h1><p class="intro">{html.escape(description)}</p></div>{ART}</div>', unsafe_allow_html=True)
 
 
-def card(label, value, note, accent=False):
-    i = st.session_state.get("_card_i", 0)
-    st.session_state["_card_i"] = i + 1
-    st.markdown(f'<div class="metric-card {"accent" if accent else f"v{i % 5}"}"><div class="metric-label">{html.escape(label)}</div><div class="metric-value">{html.escape(value)}</div><div class="metric-note">{html.escape(note)}</div></div>', unsafe_allow_html=True)
+def card(label, value, note, accent=False, *, tone=None):
+    tone = tone or ("danger" if accent else "neutral")
+    if tone not in {"neutral", "danger", "warning", "success"}:
+        tone = "neutral"
+    st.markdown(f'<div class="metric-card metric-{tone}"><div class="metric-label">{html.escape(label)}</div><div class="metric-value">{html.escape(value)}</div><div class="metric-note">{html.escape(note)}</div></div>', unsafe_allow_html=True)
 
 
 PROBLEMS = [

@@ -41,6 +41,31 @@ def _legend(items):
         for style, text in items) + '</div>', unsafe_allow_html=True)
 
 
+def _insight(title, description, tone="neutral"):
+    st.markdown(
+        f'<div class="chart-insight insight-{tone}"><span>Главный вывод</span>'
+        f'<strong>{html.escape(title)}</strong><p>{html.escape(description)}</p></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def _interval_story(frame):
+    intervals = [int(value) for value in frame["when"].diff().dropna().dt.days]
+    if not intervals:
+        return "Для сравнения интервалов нужна ещё одна остановка", "neutral", intervals
+    if 0 in intervals:
+        return "Есть остановки, зарегистрированные в один день", "warning", intervals
+    if len(intervals) == 1:
+        return f"Между остановками — {intervals[0]} дн.", "neutral", intervals
+    if all(a > b for a, b in zip(intervals, intervals[1:])):
+        return "Интервалы сокращаются — остановки происходят чаще", "danger", intervals
+    if all(a < b for a, b in zip(intervals, intervals[1:])):
+        return "Интервалы между остановками увеличиваются", "neutral", intervals
+    if len(set(intervals)) == 1:
+        return "Остановки повторяются с одинаковым интервалом", "warning", intervals
+    return "Интервалы между остановками меняются неравномерно", "neutral", intervals
+
+
 def activity_chart(rows):
     if not rows:
         st.info("За выбранный период пока нет данных.")
@@ -55,6 +80,14 @@ def activity_chart(rows):
             ("В среднем за день", _number(round(avg, 1))),
             ("Максимум за день", f'{int(peak["count"])} · {peak["date"]}'),
         ])
+        peak_count = int(peak["count"])
+        peak_days = int((frame["count"] == peak_count).sum())
+        if peak_count:
+            detail = f'Дата максимума: {peak["date"]}.' if peak_days == 1 else f'Дней с таким значением: {peak_days}.'
+            _insight(f"Максимум — {peak_count} инцидентов за день",
+                     f'{detail} Всего за период: {int(frame["count"].sum())}. Это число записей, а не оценка риска оборудования.')
+        else:
+            _insight("За период инцидентов не зарегистрировано", "График отражает записи в базе за выбранные дни.")
         base = alt.Chart(frame).encode(
             x=alt.X("date:O", title=None, sort=None, axis=alt.Axis(labelAngle=0, labelOverlap=False), scale=alt.Scale(padding=0.3)),
             y=alt.Y("count:Q", title="Инциденты, шт.", scale=alt.Scale(domain=[0, max(1, float(frame["count"].max())) * 1.2]),
@@ -89,6 +122,18 @@ def downtime_chart(evidence):
             ("Средняя остановка", f'{_number(round(avg, 1))} мин'),
             ("Самая долгая", f'{_number(maximum)} мин'),
         ])
+        story, tone, intervals = _interval_story(frame)
+        _insight(story, "По датам зарегистрированных инцидентов; интервалы указаны в календарных днях.", tone)
+        if intervals:
+            steps = []
+            for i, interval in enumerate(intervals):
+                start, end = frame.iloc[i]["when"], frame.iloc[i + 1]["when"]
+                steps.append(
+                    f'<div class="interval-step"><span>{start.strftime("%d.%m.%Y")} → {end.strftime("%d.%m.%Y")}</span>'
+                    f'<strong>{interval} <small>дн.</small></strong></div>'
+                )
+            st.markdown(f'<div class="interval-timeline insight-{tone}" aria-label="Интервалы между остановками">'
+                        + '<span class="interval-arrow" aria-hidden="true">→</span>'.join(steps) + '</div>', unsafe_allow_html=True)
         base = alt.Chart(frame).encode(
             x=alt.X("when:T", title=None, scale=alt.Scale(domain=[dates[0] - pd.Timedelta(days=span * 0.08), dates[-1] + pd.Timedelta(days=span * 0.08)]),
                     axis=alt.Axis(values=ticks, format="%d.%m", labelAngle=0, labelOverlap="greedy")),

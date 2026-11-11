@@ -267,8 +267,8 @@ def page_new_record():
         dash = service.dashboard()
         top_sig = dash["anomalies"][0] if dash["anomalies"] else None
         if top_sig:
-            card(f"Потери · {top_sig['equipment_name']} / {dash['window_days']} дн.", f"{kzt(top_sig['loss_kzt'])} ₸", top_sig["failure_label"], True)
-        card("Все потери от простоев", f"{kzt(dash['total_loss_kzt'])} ₸", f"За {dash['window_days']} дней · {dash['total_downtime_h']} ч простоя")
+            card(f"Потери · {top_sig['equipment_name']} / {dash['window_days']} дн.", f"{kzt(top_sig['loss_kzt'])} ₸", top_sig["failure_label"], tone="danger" if top_sig["severity"] == "high" else "warning")
+        card("Все потери от простоев", f"{kzt(dash['total_loss_kzt'])} ₸", f"За {dash['window_days']} дней · {dash['total_downtime_h']} ч простоя", tone="warning" if dash["total_loss_kzt"] > 0 else "neutral")
         st.subheader("Как это работает")
         st.markdown("**01 · ИИ извлекает поля**\n\nСтанок, поломка, простой, запчасти.\n\n**02 · Код проверяет**\n\nСтанок — из справочника, минуты — из текста, причины не выдумываются.\n\n**03 · Код считает**\n\nПотери, интервалы, окупаемость мер.")
 
@@ -373,11 +373,11 @@ def page_brief():
     with st.container(key="brief-metrics"):
         c = st.columns(4)
         with c[0]:
-            card("Загружено сегодня", str(sm["logs_today"]), f"Инцидентов: {sm['incidents_today']}", True)
+            card("Загружено сегодня", str(sm["logs_today"]), f"Инцидентов: {sm['incidents_today']}")
         with c[1]:
-            card("Простой сегодня", f"{sm['downtime_h_today']} ч".replace(".", ","), "По записям мастеров")
+            card("Простой сегодня", f"{sm['downtime_h_today']} ч".replace(".", ","), "По записям мастеров", tone="warning" if sm["downtime_h_today"] > 0 else "neutral")
         with c[2]:
-            card("Потери сегодня", f"{kzt(sm['loss_today_kzt'])} ₸", "Простой × стоимость часа + запчасти")
+            card("Потери сегодня", f"{kzt(sm['loss_today_kzt'])} ₸", "Простой × стоимость часа + запчасти", tone="warning" if sm["loss_today_kzt"] > 0 else "neutral")
         with c[3]:
             card("В базе записей", str(sm["total_logs"]), f"История с {sm['history_since']}")
 
@@ -528,9 +528,11 @@ def page_health():
     hs = service.equipment_health()
     c = st.columns(3)
     with c[0]:
-        card("Высокий риск", str(sum(h["risk"] == "high" for h in hs)), "аппаратов требуют внимания", True)
+        high_risk = sum(h["risk"] == "high" for h in hs)
+        card("Высокий риск", str(high_risk), "аппаратов требуют внимания", tone="danger" if high_risk else "neutral")
     with c[1]:
-        card("Убытки за 30 дней", f"{kzt(sum(h['loss_kzt'] for h in hs))} ₸", "простой × стоимость часа + запчасти")
+        losses = sum(h["loss_kzt"] for h in hs)
+        card("Убытки за 30 дней", f"{kzt(losses)} ₸", "простой × стоимость часа + запчасти", tone="warning" if losses > 0 else "neutral")
     with c[2]:
         card("Среднее здоровье парка", f"{round(sum(h['health'] for h in hs) / max(1, len(hs)))}%", f"аппаратов: {len(hs)}")
     cols = st.columns(3)
@@ -724,11 +726,11 @@ def page_anomalies():
     sigs = dash["anomalies"]
     c = st.columns(3)
     with c[0]:
-        card("Потери от простоев", f"{kzt(dash['total_loss_kzt'])} ₸", f"За {dash['window_days']} дней · все станки", True)
+        card("Потери от простоев", f"{kzt(dash['total_loss_kzt'])} ₸", f"За {dash['window_days']} дней · все станки", tone="warning" if dash["total_loss_kzt"] > 0 else "neutral")
     with c[1]:
-        card("Аварийный простой", f"{dash['total_downtime_h']} ч".replace(".", ","), f"За {dash['window_days']} дней")
+        card("Аварийный простой", f"{dash['total_downtime_h']} ч".replace(".", ","), f"За {dash['window_days']} дней", tone="warning" if dash["total_downtime_h"] > 0 else "neutral")
     with c[2]:
-        card("Сигналов", str(len(sigs)), "Требуют внимания")
+        card("Сигналов", str(len(sigs)), "Требуют внимания", tone="warning" if sigs else "neutral")
     if not sigs:
         st.info("Повторяющихся поломок за период нет.")
         return
@@ -789,31 +791,40 @@ def page_plan():
             st.caption("" + p["warning"])
         st.caption(f"Базовые потери: {st_['formula']} · источники: " + ", ".join(f"#{i}" for i in st_["incident_ids"]))
     applied = service.applied_set()
-    for i, m in enumerate(p["measures"]):
-        with st.container(border=True):
-            main, amount, action = st.columns([2.4, 1.4, 1.2])
-            with main:
-                st.caption(f"МЕРА 0{i+1} · {m['measure_id']}")
-                st.subheader(m["title"])
-                st.caption(m["note"])
-                if m.get("why"):
-                    st.write("ИИ: " + m["why"])
-            with amount:
-                st.metric("Потенциал / месяц", f"{kzt(m['savings_kzt'])} ₸")
-                st.caption(f"Окупаемость: {m['payback_label']}")
-            with action:
-                st.caption(f"Вложения: {kzt(m['one_time_kzt'])} ₸" + (f" + {kzt(m['monthly_kzt'])} ₸/мес" if m["monthly_kzt"] else ""))
-                key = (t[0], m["measure_id"])
-                is_on = key in applied
-                if st.button("Отменить отметку" if is_on else "Отметить внедрение", key=f"apply_{m['measure_id']}", use_container_width=True):
-                    (service.unmark_applied if is_on else service.mark_applied)(*key)
-                    st.rerun()
-                if is_on:
-                    st.caption("Внедрено · эффект появится в «Истории»")
-            with st.expander("Как получена оценка"):
-                st.write("Экономия: " + m["formula"])
-                if m.get("payback_formula"):
-                    st.write("Окупаемость: " + m["payback_formula"])
+    with st.container(key="savings-comparison"):
+        st.subheader("Сравнение мер")
+        st.caption("Экономия и окупаемость — расчётные оценки для выбранной проблемы.")
+        for i, m in enumerate(p["measures"]):
+            with st.container(key=f"measure-row-{i}"):
+                main, cost, saving, payback, action = st.columns([2.4, 1.3, 1.4, 1.2, 1.6], gap="small")
+                with main:
+                    st.markdown(f'<div class="measure-title"><span>МЕРА {i+1:02d} · {html.escape(m["measure_id"])}</span>'
+                                f'<strong>{html.escape(m["title"])}</strong></div>', unsafe_allow_html=True)
+                with cost:
+                    st.markdown('<div class="comparison-cell"><span>Внедрение, разово</span>'
+                                f'<strong>{kzt(m["one_time_kzt"])} ₸</strong>'
+                                f'<small>+ {kzt(m["monthly_kzt"])} ₸/мес</small></div>', unsafe_allow_html=True)
+                with saving:
+                    st.markdown('<div class="comparison-cell"><span>Экономия / мес</span>'
+                                f'<strong>≈ {kzt(m["savings_kzt"])} ₸</strong><small>Расчётная оценка</small></div>', unsafe_allow_html=True)
+                with payback:
+                    st.markdown('<div class="comparison-cell"><span>Окупаемость</span>'
+                                f'<strong>{html.escape(m["payback_label"])}</strong><small>Расчётная оценка</small></div>', unsafe_allow_html=True)
+                with action:
+                    key = (t[0], m["measure_id"])
+                    is_on = key in applied
+                    if st.button("Отменить отметку" if is_on else "Отметить внедрение", key=f"apply_{m['measure_id']}", use_container_width=True):
+                        (service.unmark_applied if is_on else service.mark_applied)(*key)
+                        st.rerun()
+                    if is_on:
+                        st.caption("Внедрено · эффект появится в «Истории»")
+                with st.expander("Обоснование и расчёт"):
+                    st.write(m["note"])
+                    if m.get("why"):
+                        st.write("ИИ: " + m["why"])
+                    st.write("Экономия: " + m["formula"])
+                    if m.get("payback_formula"):
+                        st.write("Окупаемость: " + m["payback_formula"])
 
 
 # ---------------- 04 · история и эффект ----------------
@@ -826,14 +837,15 @@ def page_history():
             a, b, c = st.columns(3)
             before = f"{e['avg_interval_before']:g} дн." if e.get("avg_interval_before") else "—"
             after = f"{e['avg_interval_after']:g} дн." if e.get("avg_interval_after") else "ещё нет поломок"
+            effect_tone = {"improved": "success", "no_improvement": "warning"}.get(e["status"], "neutral")
             with a:
                 card("Интервал до внедрения", before, f"Поломок до: {e['failures_before']}")
             with b:
-                card("Интервал после", after, f"Внедрено {e['applied_at']} · {e['days_since']} дн. назад", True)
+                card("Интервал после", after, f"Внедрено {e['applied_at']} · {e['days_since']} дн. назад", tone=effect_tone)
             with c:
                 verdict = {"improved": f"×{e.get('ratio', 0):g}".replace(".", ","), "no_improvement": "без улучшения",
                            "waiting": "ждём данных", "no_failures_since": "поломок нет"}.get(e["status"], "—")
-                card("Изменение", verdict, "Наблюдение, а не доказательство причинности")
+                card("Изменение", verdict, "Наблюдение, а не доказательство причинности", tone=effect_tone)
     else:
         st.info("Внедрённых мер пока нет. Отметьте меру на экране «План экономии».")
     st.subheader("Журнал записей")

@@ -93,12 +93,14 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .warn-row b {color:var(--ink); font-size:1.02rem;}
 .warn-meta {color:#594d43; font-size:.9rem;}
 
-/* метрики — пастельные карты */
+/* Метрики: нейтральные данные, риск, внимание и наблюдаемое улучшение. */
 .metric-card {min-height:132px; padding:20px 22px; border-radius:24px; margin-bottom:16px; position:relative; overflow:hidden; background:#fff;
-  box-shadow:0 14px 34px #2a2f4a14; border:1px solid #ffffffd0;}
-.metric-card::before {content:""; position:absolute; inset:8px; border:1.4px dashed #ffffffb5; border-radius:18px; pointer-events:none;}
-.metric-card.v0 {background:var(--peach);} .metric-card.v1 {background:var(--lilac);} .metric-card.v2 {background:var(--lime);}
-.metric-card.v3 {background:var(--sky);} .metric-card.v4 {background:var(--mint);} .metric-card.accent {background:var(--coral);}
+  box-shadow:0 6px 20px #493e3608; background:var(--tone-bg,#fffdf9); border:1px solid var(--tone-border,#e9e5dc);}
+.metric-neutral,.insight-neutral {--tone-bg:#fffdf9; --tone-border:#e9e5dc; --tone-ink:#493e36;}
+.metric-danger,.insight-danger {--tone-bg:#fff0ec; --tone-border:#edc8bf; --tone-ink:#a33d30;}
+.metric-warning,.insight-warning {--tone-bg:#fff5e2; --tone-border:#edd8aa; --tone-ink:#865a16;}
+.metric-success,.insight-success {--tone-bg:#edf6ee; --tone-border:#c6dfcb; --tone-ink:#2b6845;}
+.metric-card .metric-value {color:var(--tone-ink,var(--ink));}
 .metric-label {font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#2c3150b8; position:relative;}
 .metric-value {font-size:2.2rem; font-weight:800; line-height:1.5; letter-spacing:-.05em; color:var(--ink); position:relative;}
 .metric-note {font-size:.78rem; color:#3c4160b0; position:relative;}
@@ -226,6 +228,33 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(> div > [data-testid="stVert
 .chart-legend .legend-average {width:18px; height:0; border-top:1px dashed #83766b; border-radius:0;}
 .chart-events {display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:0; border-top:1px solid #eadecf; padding-top:16px;}
 .chart-events > div {padding:6px 12px; border-left:2px solid #eadecf; margin-bottom:8px;}
+.chart-insight {padding:16px 20px; margin:0 0 18px; border-radius:14px; border:1px solid var(--tone-border); border-left:3px solid var(--tone-ink); background:var(--tone-bg);}
+.chart-insight > span {display:block; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--tone-ink); margin-bottom:6px;}
+.chart-insight > strong {display:block; font-size:1.08rem; line-height:1.45; color:var(--tone-ink);}
+.chart-insight > p {font-size:.82rem; line-height:1.5; margin:6px 0 0; color:var(--muted);}
+.interval-timeline {display:flex; align-items:center; gap:18px; overflow-x:auto; padding:4px 0 20px; margin-bottom:8px;}
+.interval-step {flex:1 0 190px; padding:14px 16px; background:var(--tone-bg); border:1px solid var(--tone-border); border-radius:14px;}
+.interval-step > span {display:block; font-size:.72rem; color:var(--muted); white-space:nowrap;}
+.interval-step > strong {display:block; font-size:2rem; line-height:1.5; font-weight:700; color:var(--tone-ink);}
+.interval-step small {font-size:.88rem; font-weight:500;}
+.interval-arrow {flex-shrink:0; font-size:1.3rem; color:var(--tone-ink);}
+
+/* Сравнение мер: одинаковые колонки и расчётные значения. */
+.st-key-savings-comparison {background:#fffdf9; border:1px solid var(--line); border-radius:20px; padding:20px;}
+.st-key-savings-comparison [data-testid="stMarkdownContainer"] {margin-bottom:0;}
+.st-key-savings-comparison [class*="st-key-measure-row-"] {padding:18px 0 4px; border-top:1px solid var(--line);}
+.measure-title > span,.comparison-cell > span {display:block; color:var(--muted); font-size:.7rem; line-height:1.5; margin-bottom:8px;}
+.measure-title > strong {display:block; color:var(--ink); font-size:.94rem; font-weight:650; line-height:1.5;}
+.comparison-cell > strong {display:block; color:var(--ink); font-size:1.02rem; font-weight:650; line-height:1.4;}
+.comparison-cell > small {display:block; color:var(--muted); font-size:.7rem; line-height:1.5; margin-top:6px;}
+.st-key-savings-comparison .stButton button {border-radius:12px!important; padding:8px 10px; font-size:.78rem; transform:none; box-shadow:none;}
+@media(max-width:650px){
+  .st-key-savings-comparison {padding:16px;}
+  .st-key-savings-comparison [class*="st-key-measure-row-"] > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px;}
+  .st-key-savings-comparison [class*="st-key-measure-row-"] > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {width:100%!important; min-width:0;}
+  .st-key-savings-comparison [class*="st-key-measure-row-"] > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child,
+  .st-key-savings-comparison [class*="st-key-measure-row-"] > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {grid-column:1 / -1;}
+}
 .chart-events span,.chart-events small {display:block; color:#83766b; font-size:.75rem;}
 .chart-events strong {display:block; margin:6px 0; color:#493e36; font-size:.95rem; font-weight:600;}
 @media(max-width:600px){.chart-stats > div + div{padding-left:10px;}.chart-stats strong{font-size:1.1rem;}.chart-stats span{font-size:.7rem;}}
