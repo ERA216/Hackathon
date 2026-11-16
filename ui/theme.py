@@ -2,6 +2,7 @@
 from pathlib import Path
 import html
 import streamlit as st
+from ui.header_art import get_header_art
 
 
 def apply_theme():
@@ -9,14 +10,13 @@ def apply_theme():
 
 
 BANNERS = ["peach", "lilac", "lime", "sky", "mint"]
-ART = ('<svg viewBox="0 0 220 160" class="art"><circle cx="150" cy="70" r="52"/><circle cx="150" cy="70" r="30"/>'
-       '<path d="M20 140h180M40 140V96h26v44M80 140V70h26v70M120 140v-30h26v30"/><path d="M178 22l14-8M190 46l16 2"/></svg>')
 
 
 def heading(kicker, title, description):
     tone = BANNERS[sum(map(ord, kicker)) % len(BANNERS)]
+    art = get_header_art(kicker)
     st.markdown(f'<div class="pagehead {tone}"><div class="ph-text"><div class="eyebrow">{html.escape(kicker)}</div>'
-                f'<h1>{html.escape(title)}</h1><p class="intro">{html.escape(description)}</p></div>{ART}</div>', unsafe_allow_html=True)
+                f'<h1>{html.escape(title)}</h1><p class="intro">{html.escape(description)}</p></div>{art}</div>', unsafe_allow_html=True)
 
 
 def card(label, value, note, accent=False, *, tone=None):

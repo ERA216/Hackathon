@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 210" class="art art-signals" aria-hidden="true" focusable="false">
+  <defs><clipPath id="signals-lens-plot"><circle cx="199" cy="108" r="30"/></clipPath></defs>
+  <path class="art-shadow" d="M28 43h159l18 18v119H28Z"/>
+  <path class="art-side" d="M24 39h159l18 18v119H24Z"/>
+  <path class="art-paper" d="M20 35h159l18 18v119H20Z"/>
+  <path class="art-side" d="M179 35v18h18Z"/>
+  <path class="art-outline" d="M36 52h75"/>
+  <path class="art-muted" d="M36 61h47M36 155h64M36 162h40"/>
+  <path class="art-muted" d="M41 77v65h136"/>
+  <path class="art-guide" d="M41 96h136M41 119h136"/>
+  <rect class="art-success" x="62" y="87" width="16" height="52" rx="3"/>
+  <rect class="art-success" x="108" y="87" width="16" height="52" rx="3"/>
+  <rect class="art-accent" x="154" y="87" width="16" height="52" rx="3"/>
+  <path class="art-solid" fill="none" d="m42 134 15-9 14-31 13 18 18 14 15-33 13 17 18 16 15-34 12 19"/>
+  <circle class="art-solid" cx="71" cy="94" r="2.5"/>
+  <circle class="art-solid" cx="117" cy="93" r="2.5"/>
+  <circle class="art-accent-dark" cx="163" cy="92" r="2.5"/>
+  <path class="art-muted" d="M55 142v4M94 142v4M133 142v4M172 142v4"/>
+  <g transform="translate(-20 0)">
+  <path class="art-shadow" d="m228 132 11-9 31 38a9 9 0 0 1-1 13l-3 2a9 9 0 0 1-12-2Z"/>
+  <path class="art-metal" d="m220 127 11-10 13 16-11 10Z"/>
+  <path class="art-accent-dark" d="m230 136 11-9 27 34a8 8 0 0 1-1 12l-2 2a8 8 0 0 1-11-2Z"/>
+  <path class="art-outline" d="m243 148 10-8m-4 16 10-8m-4 16 10-8"/>
+  <circle class="art-shadow" cx="202" cy="112" r="40"/>
+  <circle class="art-metal" cx="199" cy="108" r="40"/>
+  <circle class="art-side" cx="199" cy="108" r="34"/>
+  <circle class="art-paper" cx="199" cy="108" r="30"/>
+  <g clip-path="url(#signals-lens-plot)">
+    <path class="art-guide" d="M166 98h66M166 120h66"/>
+    <rect class="art-accent" x="174" y="77" width="17" height="61" rx="3"/>
+    <path class="art-solid" fill="none" d="m162 130 18-41 14 23 20 14"/>
+    <circle class="art-accent-dark" cx="180" cy="89" r="3.5"/>
+  </g>
+  <path class="art-reflection" d="M174 98c3-11 10-16 20-17"/>
+  <path class="art-muted" d="M194 72h10M194 144h10M163 103v10M235 103v10"/>
+  </g>
+</svg>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 210" class="art art-report" aria-hidden="true" focusable="false">
+  <path class="art-shadow" d="M143 50h84l25 25v115H143Z"/>
+  <path class="art-paper" d="M139 46h84l25 25v115H139Z"/>
+  <path class="art-side" d="M144 186h103v4H144Z"/>
+  <path class="art-side" d="M223 46v25h25Z"/>
+  <path class="art-muted" fill="none" d="M223 71h25M145 188h100"/>
+  <path class="art-outline" fill="none" stroke-width="2.2" d="M158 79h62"/>
+  <path class="art-muted" fill="none" d="M158 87h38"/>
+  <rect class="art-outline" x="158" y="99" width="9" height="9" rx="1.5"/>
+  <path class="art-outline" fill="none" d="M176 103h55"/>
+  <path class="art-muted" fill="none" d="M176 111h35"/>
+  <rect class="art-success" x="158" y="123" width="9" height="9" rx="1.5"/>
+  <path class="art-outline" fill="none" d="M176 127h42"/>
+  <path class="art-muted" fill="none" d="M176 135h54"/>
+  <rect class="art-outline" x="158" y="147" width="9" height="9" rx="1.5"/>
+  <path class="art-outline" fill="none" d="M176 151h47"/>
+  <path class="art-muted" fill="none" d="M176 159h32M158 173h57"/>
+  <rect class="art-shadow" x="36" y="22" width="119" height="174" rx="18"/>
+  <rect class="art-metal" x="29" y="14" width="121" height="180" rx="18"/>
+  <rect class="art-surface" x="33" y="18" width="113" height="172" rx="14"/>
+  <rect class="art-paper" x="40" y="38" width="99" height="132" rx="8"/>
+  <rect class="art-metal" x="26" y="49" width="3" height="18" rx="1"/>
+  <rect class="art-metal" x="26" y="73" width="3" height="28" rx="1"/>
+  <rect class="art-metal" x="150" y="62" width="3" height="22" rx="1"/>
+  <circle class="art-solid" cx="64" cy="27" r="2"/>
+  <rect class="art-solid" x="76" y="25" width="27" height="4" rx="2"/>
+  <rect class="art-solid" x="76" y="179" width="28" height="3" rx="1.5"/>
+  <path class="art-muted" fill="none" d="M43 173h93"/>
+  <path class="art-outline" fill="none" stroke-width="2.2" d="M52 53h51"/>
+  <path class="art-muted" fill="none" d="M52 61h30M52 75h25"/>
+  <rect class="art-surface" x="52" y="83" width="75" height="17" rx="3"/>
+  <path class="art-muted" fill="none" d="M59 92h51M52 110h42"/>
+  <rect class="art-accent" x="52" y="118" width="75" height="31" rx="3"/>
+  <path class="art-outline" fill="none" d="M59 128h57M59 138h39"/>
+  <path class="art-outline" fill="none" d="M104 133v8"/>
+  <rect class="art-success" x="99" y="155" width="28" height="10" rx="3"/>
+  <path class="art-solid" fill="none" d="M106 160h14m-4-3 4 3-4 3"/>
+  <path class="art-shadow" d="m249 114 10 5-30 69-11 7 2-14Z"/>
+  <path class="art-accent" d="m245 110 10 5-30 69-9-5Z"/>
+  <path class="art-side" d="m245 110 2-5 10 5-2 5Z"/>
+  <path class="art-metal" fill="none" stroke-width="2.7" d="m241 120 10 5m-33 48 10 5"/>
+  <path class="art-paper" d="m216 179 9 5-11 9Z"/>
+  <path class="art-solid" d="m216 187 4 2-6 4Z"/>
+  <path class="art-metal" fill="none" d="m251 117-11 25"/>
+  <path class="art-paper" fill="none" stroke-width="1.3" d="m245 124-21 47"/>
+</svg>

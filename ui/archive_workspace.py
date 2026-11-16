@@ -1,5 +1,5 @@
 """Existing FixList sections backed by the real Kelmarsh workspace."""
-from datetime import date
+from datetime import date, datetime
 import html
 import math
 
@@ -30,6 +30,64 @@ def _metrics(items):
                 card(label, str(value), note)
 
 
+def _money_estimate(hours, period="за это событие", *, compact=False):
+    """Illustrative economics, kept separate from the archive's unknown costs."""
+    hourly_rate = 50_000
+    reduction = 0.20
+    loss = max(0, hours) * hourly_rate
+
+    def amount(value):
+        if value >= 1_000_000:
+            return number(value / 1_000_000, 1) + " млн ₸"
+        rounded = round(value / 100) * 100 if value >= 100 else round(value)
+        return number(rounded) + " ₸"
+
+    heading = "" if compact else f'<div class="archive-money-heading">Денежный эффект <span>{html.escape(period)}</span></div>'
+    period_note = html.escape(period.capitalize()) + ". " if compact else ""
+    return (
+        f'<section class="archive-money{" archive-money-compact" if compact else ""}" aria-label="Расчётный финансовый эффект">'
+        + heading +
+        '<div class="archive-money-values"><div><span>Потери · оценка</span>'
+        f'<strong>≈ {amount(loss)}</strong></div><div class="archive-money-saving"><span>Потенциал экономии</span>'
+        f'<strong>≈ {amount(loss * reduction)}</strong></div></div>'
+        f'<p>{period_note}Пример: 50 000 ₸/ч · сокращение простоя на 20%. '
+        'Расчётный сценарий, не фактические расходы или достигнутая экономия.</p></section>'
+    )
+
+
+def _event_card(row, admin_name):
+    source = row.get("source_record")
+    state = row["status"] if row["status"] in {"archived", "new", "approved", "escalated", "resolved"} else "archived"
+    started = datetime.fromisoformat(source["started_at"] if source else row["time"])
+    seconds = source["duration_seconds"] if source else row["downtime_min"] * 60
+    elapsed = duration(seconds)
+    label = row["failure_label"] if source else row["raw_text"]
+    reference = "Код " + source["code"] if source else "Запись сотрудника"
+    with st.container(key=f'archive-card-{row["id"]}'):
+        st.markdown(
+            f'<article class="archive-ticket archive-state-{state}">'
+            f'<div class="archive-ticket-top"><span class="archive-status">{html.escape(row["status_label"])}</span>'
+            f'<span class="archive-origin">{"SCADA · " + html.escape(reference) if source else "FIXLIST"}</span></div>'
+            f'<h3>{html.escape(row["equipment_name"])}</h3>'
+            f'<p class="archive-ticket-description">{html.escape(label)}</p>'
+            '<div class="archive-ticket-facts"><div><span>Длительность остановки</span>'
+            f'<strong>{html.escape(elapsed)}</strong></div><div><span>{"Начало · UTC" if source else "Дата записи"}</span>'
+            f'<strong>{started:%d.%m.%Y} · {started:%H:%M:%S}</strong></div></div>'
+            + (f'<div class="archive-ticket-reference">{html.escape(reference)}</div>' if not source else "")
+            + _money_estimate(seconds / 3600, compact=True) + '</article>', unsafe_allow_html=True)
+        if st.button("Открыть карточку →", key=f'archive-open-{row["id"]}', use_container_width=True):
+            event_dialog(row["id"], admin_name)
+
+
+def _event_grid(rows, admin_name):
+    with st.container(key="archive-event-grid"):
+        for offset in range(0, len(rows), 3):
+            columns = st.columns(3, gap="medium")
+            for column, row in zip(columns, rows[offset:offset + 3]):
+                with column:
+                    _event_card(row, admin_name)
+
+
 @st.dialog("Событие оборудования", width="large")
 def event_dialog(incident_id, admin_name):
     record = service.archive_record(incident_id)
@@ -37,14 +95,22 @@ def event_dialog(incident_id, admin_name):
         st.error("Запись не найдена.")
         return
     source = record.get("source_record")
-    st.subheader(record["equipment_name"])
-    st.write(record["raw_text"])
     if source:
-        st.markdown(f'**Длительность:** {duration(source["duration_seconds"])} · **Код:** {source["code"]}')
-        st.caption(f'Исходный ID: {source["id"]} · {source["source_file"]}, строка {source["source_row"]}')
-        st.caption("Окончание события — отметка журнала. Подтверждённых сведений о выполненном ремонте и его стоимости в источнике нет.")
-        with st.expander("Полная исходная запись"):
+        ticket = next(item for item in service.tickets(limit=10000) if item["id"] == incident_id)
+        st.markdown('<div class="archive-detail-header"><span>СОБЫТИЕ ОБОРУДОВАНИЯ · АРХИВ 2016</span>'
+                    f'<h3>{html.escape(record["equipment_name"])}</h3><p>{html.escape(ticket["failure_label"])}</p></div>', unsafe_allow_html=True)
+        facts = [("Начало · UTC", timestamp(source["started_at"])), ("Окончание · UTC", timestamp(source["ended_at"])),
+                 ("Длительность", duration(source["duration_seconds"])), ("Исходный код", source["code"])]
+        st.markdown('<dl class="archive-detail-facts">' + "".join(f'<div><dt>{html.escape(name)}</dt><dd>{html.escape(value)}</dd></div>' for name, value in facts) + '</dl>', unsafe_allow_html=True)
+        st.markdown(_money_estimate(source["duration_seconds"] / 3600), unsafe_allow_html=True)
+        st.caption("Состояние ремонта и расходы в источнике не указаны. Результат проверки можно добавить в FixList.")
+        with st.expander("Первоисточник и технические сведения"):
+            st.write(source["message"])
+            st.caption(f'ID: {source["id"]} · {source["source_file"]}, строка {source["source_row"]}')
             st.json(source)
+    else:
+        st.subheader(record["equipment_name"])
+        st.write(record["raw_text"])
     status = record["status"]
     if status == "archived":
         if st.button("Создать задачу по проверке сигнала", type="primary", key="archive-create-task"):
@@ -87,43 +153,38 @@ def board(user):
     if st.session_state.get("archive-board-page", 1) > pages:
         st.session_state["archive-board-page"] = 1
     page = st.number_input("Страница", min_value=1, max_value=pages, value=1, step=1, key="archive-board-page")
-    st.caption(f"Найдено: {len(rows)} · страница {page} из {pages}")
-    columns = st.columns(3, gap="medium")
-    for index, row in enumerate(rows[(page - 1) * 12:page * 12]):
-        with columns[index % 3]:
-            with st.container(border=True):
-                source = row.get("source_record")
-                st.caption(row["status_label"] + " · " + row["time"] + " UTC")
-                st.subheader(row["equipment_name"])
-                st.markdown(f'**{row["failure_label"]}**')
-                if source:
-                    st.caption("Код " + source["code"] + " · " + duration(source["duration_seconds"]))
-                else:
-                    st.write(row["raw_text"])
-                if st.button("Открыть событие" if source else "Открыть задачу", key=f'archive-open-{row["id"]}', use_container_width=True):
-                    event_dialog(row["id"], user["display_name"])
+    st.caption(f"Найдено: {len(rows)} · страница {page} из {pages} · сначала новые события")
+    _event_grid(rows[(page - 1) * 12:page * 12], user["display_name"])
 
 
 def health():
-    heading("03 / Состояние оборудования", "История каждой турбины —\nв одном месте.", "Реальные записи остановок и повторения сигналов за 2016 год. Текущее техническое состояние требует отдельной диагностики.")
+    heading("03 / Состояние оборудования", "История оборудования —\nв одном месте.", "Реальные записи остановок и повторения сигналов за 2016 год. Текущее техническое состояние требует отдельной диагностики.")
     rows = service.archive_equipment()
     view = service.archive_report()
     _metrics([("Оборудования", len(rows), "Senvion MM92 · Kelmarsh"), ("Событий", view["stats"]["events"], "Остановки по классификации источника"),
               ("Часы остановок", number(view["stats"]["downtime_seconds"] / 3600, 1), "Сумма по отдельным агрегатам")])
-    columns = st.columns(3, gap="medium")
-    for index, row in enumerate(rows):
-        with columns[index % 3]:
-            with st.container(border=True):
-                st.caption("Senvion MM92 · архив 2016")
-                st.subheader(row["name"])
-                st.markdown(f'**{row["events"]} событий · {number(row["hours"], 1)} ч**')
-                st.caption(f'Повторяющихся кодов: {row["repeat_groups"]}')
-                if row["top_signal"]:
-                    top = row["top_signal"]
-                    st.write(top["label"])
-                    st.caption(f'Код {top["code"]} · {top["count"]} записей')
-                if row["last_event"]:
-                    st.caption("Последнее событие: " + timestamp(row["last_event"]) + " UTC")
+    with st.container(key="archive-equipment-grid"):
+        for offset in range(0, len(rows), 3):
+            for column, row in zip(st.columns(3, gap="medium"), rows[offset:offset + 3]):
+                with column:
+                    with st.container(key=f'archive-equipment-card-{row["id"]}'):
+                        top = row["top_signal"]
+                        description = top["label"] if top else "Повторений одного сигнала нет"
+                        last = datetime.fromisoformat(row["last_event"]).strftime("%d.%m.%Y") if row["last_event"] else "—"
+                        st.markdown('<article class="archive-equipment-ticket"><div class="archive-ticket-top">'
+                                    '<span class="archive-status">История оборудования</span><span class="archive-origin">2016</span></div>'
+                                    f'<h3>{html.escape(row["name"])}</h3><p class="archive-equipment-model">Senvion MM92 · ветроустановка</p>'
+                                    '<div class="archive-equipment-numbers">'
+                                    f'<div><strong>{row["events"]}</strong><span>событий</span></div>'
+                                    f'<div><strong>{number(row["hours"], 1)} ч</strong><span>остановок</span></div></div>'
+                                    '<p class="archive-ticket-description"><span class="archive-recurring-label">Чаще повторяется: </span>'
+                                    f'{html.escape(description)}</p>'
+                                    f'<div class="archive-ticket-reference">Последнее событие · {last}</div>'
+                                    + _money_estimate(row["hours"], "за 2016 год", compact=True) + '</article>', unsafe_allow_html=True)
+                        if st.button("Посмотреть историю →", key=f'archive-equipment-open-{row["id"]}', use_container_width=True):
+                            st.session_state["od-equipment"] = row["id"]
+                            st.session_state["page"] = "История и эффект"
+                            st.rerun()
 
 
 def daily():
@@ -142,13 +203,16 @@ def daily():
         st.write(f'За {day:%d.%m.%Y} началось событий: {view["started_events"]}. В выбранные сутки попали {stats["events"]} записей об остановках.')
         st.write(f'Объединённая длительность по агрегатам: {number(stats["downtime_seconds"] / 3600, 2)} ч. Пересекающиеся интервалы на одной турбине не суммируются повторно.')
     if view["rows"]:
-        st.dataframe([{"Оборудование": row["equipment_name"], "Начало · UTC": timestamp(row["started_at"]), "Окончание · UTC": timestamp(row["ended_at"]), "Код": row["code"], "Исходный сигнал": row["message"]} for row in view["rows"]], hide_index=True, use_container_width=True)
+        st.subheader("События выбранного дня")
+        st.caption("Карточка показывает полную длительность исходного события; в сводке выше учитывается только часть внутри выбранных суток.")
+        tickets = {row["id"]: row for row in service.tickets(limit=10000)}
+        _event_grid([tickets[row["incident_id"]] for row in view["rows"]], st.session_state["user"]["display_name"])
     else:
         st.info("В этот день в выбранном архиве остановок этой категории нет.")
 
 
 def signals():
-    heading("05 / Повторяющиеся сигналы", "Повторение видно.\nИсторию можно проверить.", "Один и тот же исходный код на одной турбине. Интервалы рассчитаны по реальным датам; причина и прогноз следующего отказа не подменяются догадкой.")
+    heading("05 / Повторяющиеся сигналы", "Повторение видно.\nИсторию можно проверить.", "Повторяющиеся сигналы по одному объекту или оборудованию. Интервалы рассчитаны по реальным датам; причина и прогноз следующего отказа не подменяются догадкой.")
     view = service.archive_report()
     groups = view["signals"]
     _metrics([("Повторяющихся кодов", len(groups), "Пары «турбина × код»"), ("Событий в базе", len(view["rows"]), "Полные исходные записи"),

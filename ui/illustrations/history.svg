@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 210" class="art art-history" aria-hidden="true" focusable="false">
+  <path class="art-shadow" d="M35 184h210l9 9H30Z"/>
+  <path class="art-side" d="M34 63h25l12-15h151a12 12 0 0 1 12 12v121H34Z"/>
+  <path class="art-muted" d="M40 67h184M227 65v107"/>
+  <rect class="art-side" x="53" y="53" width="143" height="122" rx="4"/>
+  <rect class="art-paper" x="48" y="48" width="143" height="122" rx="4"/>
+  <path class="art-success" d="M60 48V35a4 4 0 0 1 4-4h32a4 4 0 0 1 4 4v13Z"/>
+  <path class="art-muted" d="M68 39h24"/>
+  <path class="art-muted" d="M56 59h16"/>
+  <circle class="art-side" cx="58" cy="75" r="2"/>
+  <circle class="art-side" cx="58" cy="92" r="2"/>
+  <circle class="art-side" cx="58" cy="109" r="2"/>
+  <path class="art-muted" d="M65 75h20M65 92h20M65 109h20"/>
+  <rect class="art-side" x="81" y="45" width="142" height="130" rx="4"/>
+  <rect class="art-paper" x="76" y="40" width="142" height="130" rx="4"/>
+  <path class="art-metal" d="M112 40V27a4 4 0 0 1 4-4h32a4 4 0 0 1 4 4v13Z"/>
+  <path class="art-muted" d="M120 31h24"/>
+  <path class="art-outline" d="M86 57h25"/>
+  <path class="art-muted" d="M86 68h21"/>
+  <path class="art-muted" d="M86 83h28"/>
+  <path class="art-muted" d="M86 94h24"/>
+  <path class="art-muted" d="M86 105h27"/>
+  <path class="art-side" d="M109 37h111l17 17v121H109Z"/>
+  <path class="art-paper" d="M104 32h111l17 17v121H104Z"/>
+  <path class="art-accent" d="M174 32V19a4 4 0 0 1 4-4h32a4 4 0 0 1 4 4v13Z"/>
+  <path class="art-muted" d="M182 23h24"/>
+  <path class="art-side" d="M215 32v17h17Z"/>
+  <path class="art-muted" d="M215 49h17"/>
+  <path class="art-outline" d="M116 54h58"/>
+  <path class="art-muted" d="M116 63h42"/>
+  <path class="art-muted" d="M116 78h102"/>
+  <path class="art-muted" d="M116 89h87"/>
+  <path class="art-muted" d="M116 100h102"/>
+  <path class="art-muted" d="M116 111h72"/>
+  <path class="art-accent" d="M31 118h205a10 10 0 0 1 10 10v47a10 10 0 0 1-10 10H41a10 10 0 0 1-10-10Z"/>
+  <path class="art-muted" d="M42 124h192"/>
+  <path class="art-side" d="M34 178h209a10 10 0 0 1-9 7H43a10 10 0 0 1-9-7Z"/>
+  <path class="art-outline" d="M42 178h192"/>
+  <rect class="art-surface" x="76" y="136" width="126" height="28" rx="4"/>
+  <path class="art-muted" d="M84 143h110M84 157h110"/>
+  <path class="art-outline" d="M91 150h50"/>
+  <path class="art-muted" d="M155 150h30"/>
+  <circle class="art-side" cx="50" cy="151" r="3"/>
+  <circle class="art-side" cx="226" cy="151" r="3"/>
+  <path class="art-muted" d="M47 151h6M223 151h6"/>
+</svg>
