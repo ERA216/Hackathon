@@ -233,9 +233,18 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .s-esc {background:var(--coral);} .s-esc .tc-top::before {background:#e23b2b;}
 .s-res {background:var(--mint);} .s-res .tc-top::before {background:#2f9f6b;}
 
+/* Extend the native open button's hit area to the card. */
+:is([class*="st-key-board-ticket-card-"], [class*="st-key-archive-card-"], [class*="st-key-archive-equipment-card-"]) {
+  position:relative; border-radius:20px;
+  & .stElementContainer:has(> .stButton), & .stButton {position:static;}
+  & .stButton button:hover {transform:none;}
+  & .stButton button::after {content:""; position:absolute; inset:0; z-index:1; cursor:pointer;}
+  &:has(.stButton button:focus-visible) {outline:2px solid #b94922; outline-offset:2px;}
+}
+
 /* Real events use the same pastel card language as the original task board. */
 [class*="st-key-archive-card-"], [class*="st-key-archive-equipment-card-"] {
-  position:relative; padding:14px 16px; gap:6px; border:1px solid #fff8ef; border-radius:20px;
+  padding:14px 16px; gap:6px; border:1px solid #fff8ef;
   background:linear-gradient(155deg,#ffdfbb 0%,#ffebd4 55%,#fff6e9 100%);
   box-shadow:0 10px 26px #493e3610; overflow:hidden; transition:box-shadow .18s,border-color .18s;
 }
@@ -282,7 +291,7 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .archive-money-compact .archive-money-values strong {font-size:.95rem; margin-top:0; white-space:nowrap;}
 .archive-money-compact .archive-money-saving {border:0; padding:0;}
 .archive-money-compact p {padding-top:5px; font-size:.67rem!important; line-height:1.35!important;}
-[class*="st-key-archive-card-"] .stButton, [class*="st-key-archive-equipment-card-"] .stButton {position:relative; margin-top:4px;}
+[class*="st-key-archive-card-"] .stButton, [class*="st-key-archive-equipment-card-"] .stButton {margin-top:4px;}
 [class*="st-key-archive-card-"] .stButton button, [class*="st-key-archive-equipment-card-"] .stButton button {
   background:#ffffff94!important; border:1px solid #ffffffb8!important; border-radius:12px!important;
   min-height:36px; padding:5px 12px; font-size:.78rem; box-shadow:none; transform:none;
@@ -290,8 +299,6 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 [class*="st-key-archive-card-"] .stButton button:hover, [class*="st-key-archive-equipment-card-"] .stButton button:hover {
   background:#ffffffd9!important; border-color:#bc9974!important; box-shadow:0 4px 12px #76563810; transform:none;
 }
-[class*="st-key-archive-card-"] .stButton button:focus-visible,
-[class*="st-key-archive-equipment-card-"] .stButton button:focus-visible {outline:2px solid #b94922; outline-offset:3px;}
 .archive-state-escalated .archive-status {color:#913e31;}
 .archive-state-escalated .archive-status::before {background:#b84f3b;}
 .archive-state-resolved .archive-status {color:#386747;}

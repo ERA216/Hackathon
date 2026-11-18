@@ -685,7 +685,7 @@ def page_board():
         st.info("Здесь пусто — всё решено.")
     cols = st.columns(3)
     for i, t in enumerate(items):
-        with cols[i % 3]:
+        with cols[i % 3], st.container(key=f"board-ticket-card-{t['id']}"):
             ticket_card(t)
             if st.button("Открыть" if not sel or sel["id"] != t["id"] else "Открыта", key=f"open_{t['id']}", use_container_width=True):
                 ss.sel_ticket = t["id"]
