@@ -3,7 +3,7 @@ import json
 import re
 
 from . import analytics, config, db, llm
-from .schemas import AdvisorChoice, kzt, num
+from .schemas import AdvisorChoice, kzt, loss_label, num
 
 ADVISOR_PROMPT = """Ты инженер по надёжности оборудования на небольшом производстве.
 Тебе дают статистику поломок одного станка, исходные записи мастеров и список ДОПУСТИМЫХ мер с уже посчитанной экономикой.
@@ -31,16 +31,24 @@ def economics(measure: dict, st: dict) -> dict:
     eff, monthly, one_time = measure["effect"], measure["monthly_kzt"], measure["one_time_kzt"]
     scale = 30 / st["window_days"]  # приводим к месяцу
     if eff["type"] == "reduce_failures":
-        gross = loss * scale * eff["value"]
-        formula = f"{kzt(loss * scale)} × {eff['value']:.0%}"
+        gross = None if loss is None else loss * scale * eff["value"]
+        formula = "Нет полной оценки потерь за период." if loss is None else f"{kzt(loss * scale)} × {eff['value']:.0%}"
     else:  # reduce_downtime: простой одного случая сокращается до value часов
         new_h = min(eff["value"], avg_h)
-        gross = n * scale * (avg_h - new_h) * hour
-        formula = f"{num(n * scale)} × ({num(avg_h)} − {num(new_h)}) ч × {kzt(hour)} ₸"
-    savings = gross - monthly
-    if monthly:
+        hours_saved = n * scale * (avg_h - new_h)
+        gross = None if hours_saved and hour is None else hours_saved * (hour or 0)
+        if gross is None:
+            formula = "Для расчёта экономии нужен тариф простоя."
+        elif hour is None:
+            formula = "Расчётный простой не сокращается."
+        else:
+            formula = f"{num(n * scale)} × ({num(avg_h)} − {num(new_h)}) ч × {kzt(hour)} ₸"
+    savings = None if gross is None else gross - monthly
+    if monthly and savings is not None:
         formula += f" − {kzt(monthly)} ₸ ежемесячных затрат"
-    if savings <= 0:
+    if savings is None:
+        payback, payback_label = None, "нет оценки"
+    elif savings <= 0:
         payback, payback_label = None, "не окупается"
     elif one_time == 0:
         payback, payback_label = 0.0, "без разовых вложений"
@@ -50,17 +58,17 @@ def economics(measure: dict, st: dict) -> dict:
     out = {
         "measure_id": measure["id"], "title": measure["title"], "note": measure["note"], "demo": measure.get("demo", False),
         "one_time_kzt": one_time, "monthly_kzt": monthly,
-        "savings_kzt": int(round(savings)), "payback_days": None if payback is None else round(payback, 1),
+        "savings_kzt": None if savings is None else round(savings), "payback_days": None if payback is None else round(payback, 1),
         "payback_label": payback_label,
-        "formula": formula + f" = {kzt(savings)} ₸/мес",
+        "formula": formula if savings is None else formula.rstrip(".") + f" = {kzt(savings)} ₸/мес",
     }
-    if one_time and savings > 0:
+    if one_time and savings is not None and savings > 0:
         out["payback_formula"] = f"{kzt(one_time)} / ({kzt(savings)} / 30) ≈ {num(round(payback, 1))} дн."
     return out
 
 
 def _rank_key(e: dict):
-    return (e["payback_days"] is None, e["payback_days"] if e["payback_days"] is not None else 1e9, -e["savings_kzt"])
+    return (e["savings_kzt"] is None, e["payback_days"] is None, e["payback_days"] or 0, -(e["savings_kzt"] or 0))
 
 
 _NUM_RE = re.compile(r"\d[\d\s ]*(?:[.,]\d+)?")
@@ -84,19 +92,24 @@ def _allowed_numbers(st: dict, econ: list[dict]) -> set[str]:
     for e in econ:  # округлённые варианты, которые модель может написать естественно
         for k in ("savings_kzt", "one_time_kzt", "monthly_kzt"):
             v = e[k]
-            allowed |= {f"{round(v, -3):g}", f"{round(v / 1000):g}", f"{round(v / 1000, 1):g}"}
+            if v is not None:
+                allowed |= {f"{round(v, -3):g}", f"{round(v / 1000):g}", f"{round(v / 1000, 1):g}"}
         if e["payback_days"]:
             allowed |= {f"{round(e['payback_days']):g}", f"{max(1, round(e['payback_days'])):g}"}
-    allowed |= {f"{st['loss_kzt'] / 1000:g}", f"{round(st['loss_kzt'] / 1000):g}", f"{round(st['loss_kzt'], -3):g}"}
+    if (loss := st["loss_kzt"]) is not None:
+        allowed |= {f"{loss / 1000:g}", f"{round(loss / 1000):g}", f"{round(loss, -3):g}"}
     return allowed
 
 
 def _template_summary(st: dict, best: dict) -> str:
     txt = (f"{st['equipment_name']}: «{st['failure_label'].lower()}» — случаев за {st['window_days']} дней: {st['failures']}, "
-           f"потери ≈ {kzt(st['loss_kzt'])} ₸. ")
+           f"потери: {loss_label(st['loss_kzt'], st['parts_kzt'])}. ")
     if best:
-        txt += (f"Начните с меры «{best['title']}»: экономия ≈ {kzt(best['savings_kzt'])} ₸ в месяц, "
-                f"окупаемость — {best['payback_label']}.")
+        if best["savings_kzt"] is None:
+            txt += f"Рассмотрите меру «{best['title']}». Для оценки экономии заполните недостающие данные."
+        else:
+            txt += (f"Начните с меры «{best['title']}»: экономия ≈ {kzt(best['savings_kzt'])} ₸ в месяц, "
+                    f"окупаемость — {best['payback_label']}.")
     return txt
 
 
@@ -105,6 +118,9 @@ def plan(equipment_id: str, failure_type: str, save: bool = True) -> dict:
     if not st.get("failures"):
         return {"stats": st, "measures": [], "summary": "За период поломок такого типа нет — мер не требуется.", "mode": "rules", "ai_generated": False}
     econ = sorted((economics(m, st) for m in candidates(failure_type)), key=_rank_key)
+    if st["loss_kzt"] is None:
+        return {"stats": st, "measures": econ[:3], "summary": _template_summary(st, econ[0] if econ else None),
+                "mode": "rules", "ai_generated": False, "all_candidates": econ}
     mode, warning, summary = "ai", None, None
     by_id = {e["measure_id"]: e for e in econ}
     chosen = []

@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 .env
+*.db
+*.db-*
+.session_secret
+.runtime-backups/

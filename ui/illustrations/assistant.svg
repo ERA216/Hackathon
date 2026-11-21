@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 210" class="art art-assistant" aria-hidden="true" focusable="false">
+  <path class="art-shadow" d="M76 194c23-6 79-6 107 0 9 3-4 6-24 6H95c-20 0-28-3-19-6Z"/>
+  <rect class="art-metal" x="104" y="171" width="12" height="16" rx="4"/>
+  <path class="art-muted" d="M106 177h8M106 181h8"/>
+  <rect class="art-metal" x="136" y="169" width="12" height="15" rx="4"/>
+  <path class="art-muted" d="M138 175h8"/>
+  <rect class="art-side" x="90" y="186" width="36" height="12" rx="5"/>
+  <rect class="art-surface" x="87" y="182" width="36" height="12" rx="5"/>
+  <path class="art-muted" d="M94 190h21"/>
+  <g transform="rotate(-12 149 185)">
+    <rect class="art-side" x="133" y="182" width="38" height="13" rx="5"/>
+    <rect class="art-surface" x="130" y="178" width="38" height="13" rx="5"/>
+    <path class="art-muted" d="M138 187h22"/>
+  </g>
+  <path d="M89 127c-20 4-25 17-18 25l15 7" fill="none" stroke="#a68a6f" stroke-width="14"/>
+  <path d="M89 127c-20 4-25 17-18 25l15 7" fill="none" stroke="#fff8eb" stroke-width="10"/>
+  <circle class="art-metal" cx="70" cy="147" r="6.5"/>
+  <circle class="art-outline" cx="70" cy="147" r="2"/>
+  <path d="M168 128c16 2 25-3 31-14l14-12" fill="none" stroke="#a68a6f" stroke-width="14"/>
+  <path d="M168 128c16 2 25-3 31-14l14-12" fill="none" stroke="#fff8eb" stroke-width="10"/>
+  <circle class="art-metal" cx="199" cy="113" r="6.5"/>
+  <circle class="art-outline" cx="199" cy="113" r="2"/>
+  <rect class="art-metal" x="206" y="103" width="17" height="10" rx="4" transform="rotate(-27 214 108)"/>
+  <rect class="art-surface" x="202" y="79" width="7" height="23" rx="3.5"/>
+  <rect class="art-surface" x="211" y="75" width="7" height="27" rx="3.5"/>
+  <rect class="art-surface" x="220" y="81" width="7" height="21" rx="3.5"/>
+  <path class="art-surface" d="m202 94-6-6c-3-3-7 1-4 5l10 12c3 4 9 6 15 4 6-1 10-7 10-13v-4h-25Z"/>
+  <path class="art-muted" d="M205 97v4M214 97v5M223 97v3"/>
+  <rect class="art-metal" x="106" y="102" width="34" height="18" rx="6"/>
+  <path class="art-muted" d="M111 110h24M112 115h22"/>
+  <path class="art-shadow" d="M105 117h45c13 0 23 11 21 24l-4 25c-1 11-10 18-21 18h-23c-11 0-20-7-22-17l-5-24c-3-13 1-26 9-26Z"/>
+  <path class="art-side" d="M104 115h43c13 0 23 11 21 24l-4 25c-1 11-10 18-21 18h-22c-11 0-20-7-22-17l-5-24c-3-13 2-26 10-26Z"/>
+  <path class="art-surface" d="M101 111h44c13 0 23 11 21 24l-4 25c-1 11-10 18-21 18h-22c-11 0-20-7-22-17l-5-24c-3-13-4-26 9-26Z"/>
+  <path class="art-reflection" d="M102 120c8-5 18-5 27-4"/>
+  <path class="art-muted" d="M105 162c11 5 28 5 43 0M114 169h24"/>
+  <circle class="art-metal" cx="91" cy="127" r="7"/>
+  <circle class="art-outline" cx="91" cy="127" r="2.5"/>
+  <circle class="art-metal" cx="169" cy="128" r="7"/>
+  <circle class="art-outline" cx="169" cy="128" r="2.5"/>
+  <circle class="art-accent" cx="127" cy="138" r="17"/>
+  <path class="art-paper" d="M119 130h16a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-7l-5 4v-4h-4a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3Z"/>
+  <circle class="art-solid" cx="122" cy="136" r="1.2"/>
+  <circle class="art-solid" cx="127" cy="136" r="1.2"/>
+  <circle class="art-solid" cx="132" cy="136" r="1.2"/>
+  <circle class="art-success" cx="148" cy="155" r="2.5"/>
+  <circle class="art-metal" cx="108" cy="153" r="3"/>
+  <path class="art-outline" d="M108 150v3"/>
+  <g transform="rotate(-12 87 158)">
+    <rect class="art-surface" x="78" y="151" width="21" height="15" rx="6"/>
+    <path class="art-muted" d="M84 157v5M90 157v5M96 157v4"/>
+  </g>
+  <g transform="translate(-4 0) rotate(-8 121 72)">
+    <rect class="art-metal" x="127" y="17" width="6" height="17" rx="3"/>
+    <circle class="art-accent" cx="130" cy="17" r="5"/>
+    <circle class="art-metal" cx="62" cy="69" r="12"/>
+    <circle class="art-side" cx="62" cy="69" r="5"/>
+    <path class="art-muted" d="M60 65v8M64 65v8"/>
+    <circle class="art-metal" cx="184" cy="68" r="10"/>
+    <path class="art-muted" d="M185 63v10M189 65v6"/>
+    <rect class="art-shadow" x="70" y="36" width="117" height="77" rx="26"/>
+    <rect class="art-side" x="68" y="34" width="117" height="77" rx="26"/>
+    <rect class="art-surface" x="63" y="29" width="117" height="77" rx="26"/>
+    <path class="art-reflection" d="M84 36h39"/>
+    <rect class="art-solid" x="77" y="43" width="91" height="49" rx="18"/>
+    <path class="art-reflection" d="M84 60c1-6 4-9 9-10"/>
+    <path class="art-reflection" d="M95 52q7-5 15-2M136 49q8-5 16-1"/>
+    <ellipse class="art-paper" cx="103" cy="65" rx="6.5" ry="9"/>
+    <ellipse class="art-paper" cx="145" cy="63" rx="7" ry="10"/>
+    <ellipse class="art-solid" cx="105" cy="63" rx="2.5" ry="4"/>
+    <ellipse class="art-solid" cx="147" cy="61" rx="2.7" ry="4.3"/>
+    <path class="art-reflection" d="M111 79q14 14 29-2"/>
+    <circle class="art-metal" cx="81" cy="98" r="1.7"/>
+    <circle class="art-metal" cx="161" cy="98" r="1.7"/>
+    <path class="art-muted" d="M105 99h28"/>
+  </g>
+  <path class="art-shadow" d="M213 18h46a10 10 0 0 1 10 10v19a10 10 0 0 1-10 10h-28l-13 11V57h-5a10 10 0 0 1-10-10V28a10 10 0 0 1 10-10Z"/>
+  <path class="art-paper" d="M209 14h46a10 10 0 0 1 10 10v19a10 10 0 0 1-10 10h-28l-13 11V53h-5a10 10 0 0 1-10-10V24a10 10 0 0 1 10-10Z"/>
+  <path class="art-outline" d="M211 28h41M211 38h22"/>
+  <path class="art-solid" fill="none" d="m242 41 4 4 8-10"/>
+</svg>

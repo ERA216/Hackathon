@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 210" class="art art-tasks" aria-hidden="true" focusable="false">
+  <rect class="art-shadow" x="55" y="30" width="146" height="168" rx="11"/>
+  <rect class="art-side" x="52" y="27" width="144" height="168" rx="11"/>
+  <rect class="art-surface" x="47" y="21" width="144" height="168" rx="11"/>
+  <path class="art-muted" d="M57 178h124M57 34v131"/>
+  <circle class="art-metal" cx="57" cy="30" r="2"/>
+  <circle class="art-metal" cx="181" cy="30" r="2"/>
+  <rect class="art-side" x="62" y="43" width="120" height="134" rx="4"/>
+  <path class="art-paper" d="M63 40h112a4 4 0 0 1 4 4v114l-16 16H63a4 4 0 0 1-4-4V44a4 4 0 0 1 4-4Z"/>
+  <path class="art-muted" d="M71 54h67M71 59h42"/>
+  <path class="art-metal" d="M98 30v-9a7 7 0 0 1 7-7h28a7 7 0 0 1 7 7v9Z"/>
+  <rect class="art-metal" x="92" y="28" width="54" height="13" rx="4"/>
+  <circle class="art-outline" cx="119" cy="23" r="3.5"/>
+  <path class="art-muted" d="M99 35h40"/>
+  <rect class="art-success" x="71" y="69" width="13" height="13" rx="2.5"/>
+  <path class="art-solid" fill="none" d="m74 75 3 3 5-6"/>
+  <path class="art-outline" d="M93 72h69"/>
+  <path class="art-muted" d="M93 81h47"/>
+  <rect class="art-accent" x="66" y="94" width="106" height="29" rx="4"/>
+  <rect class="art-paper" x="72" y="102" width="13" height="13" rx="2.5"/>
+  <path class="art-outline" d="M94 106h63"/>
+  <path class="art-muted" d="M94 115h42"/>
+  <rect class="art-outline" x="71" y="134" width="13" height="13" rx="2.5"/>
+  <path class="art-outline" d="M93 137h69"/>
+  <path class="art-muted" d="M93 146h49M71 158h74M71 165h51"/>
+  <path class="art-side" d="M163 174v-16h16Z"/>
+  <g transform="rotate(12 226 109)">
+    <rect class="art-shadow" x="223" y="51" width="14" height="119" rx="5"/>
+    <rect class="art-accent-dark" x="219" y="45" width="10" height="15" rx="4"/>
+    <rect class="art-accent" x="217" y="52" width="14" height="105" rx="5"/>
+    <path class="art-reflection" d="M221 66v70"/>
+    <path class="art-metal" d="M226 57h4v29a3 3 0 0 1-6 0V70"/>
+    <rect class="art-metal" x="217" y="145" width="14" height="9" rx="2"/>
+    <path class="art-muted" d="M219 149h10"/>
+    <path class="art-side" d="m217 157 7 25 7-25Z"/>
+    <path class="art-solid" d="m222 176 2 7 2-7Z"/>
+  </g>
+</svg>

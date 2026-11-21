@@ -1,18 +1,16 @@
 """Фасад для интерфейса: всё, что нужно экранам, в одном месте. UI вызывает только эти функции."""
 from typing import Optional
 
-from . import advisor, analytics, auth, briefing, config, db, extract, seed
-from .schemas import FAILURE_LABELS, FailureType
+from . import advisor, analytics, auth, briefing, config, data_import, db, extract, notifications, seed, workspace_data
+from .schemas import FAILURE_LABELS, MAX_DOWNTIME_MIN, FailureType
 
 
 def bootstrap() -> None:
-    """Создать базу и демо-данные при первом запуске."""
+    """Initialize accounts, then replace the sample workspace with real source events."""
     db.init_db()
-    if db.is_empty() or db.get_meta("seed_version") != seed.SEED_VERSION:
-        seed.reset_demo()  # первая установка или новая версия тестовых данных: тестовая компания пересоздаётся (другие не трогаются)
-        db.set_meta("seed_version", seed.SEED_VERSION)
-    else:
-        seed.ensure_demo_company()
+    from . import archive
+    archive.install(seed.ensure_demo_company())
+    db.set_meta("seed_version", seed.SEED_VERSION)
 
 
 def status() -> dict:
@@ -23,7 +21,35 @@ def equipment_options() -> list[dict]:
     return db.load_equipment()
 
 
-def failure_options() -> dict:
+def import_company_data(user_id: int, equipment_csv: bytes | None = None, events_csv: bytes | None = None) -> dict:
+    return data_import.import_company_data(user_id, equipment_csv, events_csv)
+
+
+def data_import_templates() -> tuple[bytes, bytes]:
+    return data_import.templates()
+
+
+def start_workspace_with_import(workspace_name, equipment_csv, events_csv=None):
+    return data_import.start_with_import(workspace_name, equipment_csv, events_csv)
+
+
+def start_workspace(workspace_name, name, code="", line="", hour_cost_kzt=0):
+    return workspace_data.start_workspace(workspace_name, name, code, line, hour_cost_kzt)
+
+
+def add_workspace_equipment(user_id, name, code="", line="", hour_cost_kzt=0):
+    return workspace_data.add_equipment(user_id, name, code, line, hour_cost_kzt)
+
+
+def add_workspace_event(user_id, equipment_id, description, occurred_at, failure_type, downtime_min=0, parts_cost_kzt=0, *, equipment_name=None):
+    return workspace_data.add_event(user_id, equipment_id, description, occurred_at, failure_type, downtime_min, parts_cost_kzt,
+                                    equipment_name=equipment_name)
+
+
+def failure_options(*, include_archive: bool = True) -> dict:
+    if include_archive and db.source_profile():
+        from . import open_data
+        return {"kelmarsh:" + row["code"]: open_data.message_ru(row) for row in open_data.events()} | {t.value: FAILURE_LABELS[t.value] for t in FailureType}
     return {t.value: FAILURE_LABELS[t.value] for t in FailureType}
 
 
@@ -46,23 +72,28 @@ def save_record(raw: str, drafts: list[dict], mode: str = "ai", author: Optional
             raise ValueError(f"Инцидент {i}: выберите станок из списка.")
         if d.get("failure_type") not in FAILURE_LABELS:
             raise ValueError(f"Инцидент {i}: выберите тип неисправности.")
-        if d.get("downtime_min") is None or int(d["downtime_min"]) < 0:
-            raise ValueError(f"Инцидент {i}: укажите простой в минутах.")
+        if d.get("downtime_min") is None or not 0 <= int(d["downtime_min"]) <= MAX_DOWNTIME_MIN:
+            raise ValueError(f"Инцидент {i}: укажите простой от 0 до {MAX_DOWNTIME_MIN} мин.")
     with db.connect() as c:
         log_id = db.add_shift_log(raw.strip(), "processed", mode, conn=c, author=author)
         ids = [db.add_incident(log_id, {**d, "parts_cost_kzt": d.get("parts_cost_kzt")}, conn=c) for d in drafts]
+        notifications.queue_incidents(ids, conn=c)
     touched = {d["equipment_id"] for d in drafts}
-    signals = [s for s in analytics.anomalies() if s["equipment_id"] in touched]
+    signals = [] if db.source_profile() else [s for s in analytics.anomalies() if s["equipment_id"] in touched]
     return {"log_id": log_id, "incident_ids": ids, "signals": signals}
 
 
 # ---------- экран 2: аномалии ----------
 
 def dashboard() -> dict:
+    if db.source_profile():
+        from . import archive
+        return archive.dashboard()
     summary = analytics.equipment_summary()
     return {
         "window_days": config.ANALYSIS_WINDOW_DAYS,
-        "total_loss_kzt": sum(r["loss_kzt"] for r in summary),
+        "total_loss_kzt": analytics.sum_losses(r["loss_kzt"] for r in summary),
+        "parts_kzt": sum(r["parts_kzt"] for r in summary),
         "total_downtime_h": round(sum(r["downtime_h"] for r in summary), 1),
         "by_equipment": summary,
         "anomalies": analytics.anomalies(),
@@ -107,6 +138,8 @@ def history(query: str = "", limit: int = 300) -> list[dict]:
 
 
 def effects() -> list[dict]:
+    if db.source_profile():
+        return []
     measures = {m["id"]: m for m in db.load_measures()}
     eq = db.equipment_map()
     out = []
@@ -138,6 +171,9 @@ def reset_demo() -> None:
 
 
 def ask_ai(question: str, history=None) -> dict:
+    if db.source_profile():
+        from . import archive
+        return archive.ask(question, history)
     from . import assistant
     return assistant.ask(question, history)
 
@@ -153,6 +189,8 @@ def save_inspection(rows: list[dict], author: str) -> dict:
     for r in rows:
         if r["state"] not in ("ok", "remark", "problem"):
             raise ValueError("Неизвестное состояние.")
+        if not 0 <= int(r.get("downtime_min") or 0) <= MAX_DOWNTIME_MIN:
+            raise ValueError(f"Укажите простой от 0 до {MAX_DOWNTIME_MIN} мин.")
         if r["state"] != "ok" and not (r.get("note") or "").strip():
             raise ValueError(f"{eq[r['equipment_id']]['name']}: опишите замечание или проблему в комментарии.")
     cards = []
@@ -167,6 +205,7 @@ def save_inspection(rows: list[dict], author: str) -> dict:
                 incident_id = db.add_incident(log_id, {"equipment_id": r["equipment_id"], "failure_type": extract.detect_failure(note),
                                                        "downtime_min": int(r.get("downtime_min") or 0), "parts": [], "cause": None,
                                                        "action": None, "confidence": 1.0}, conn=c)
+                notifications.queue_incidents([incident_id], conn=c)
             cards.append(incident_id)
         db.add_inspection(r["equipment_id"], r["state"], (r.get("note") or "").strip() or None, author, incident_id)
     return {"checked": len(rows), "cards": cards}
@@ -185,14 +224,21 @@ def equipment_health() -> list[dict]:
 
 def _ticket(r: dict) -> dict:
     return {"id": r["id"], "time": r["occurred_at"][:16].replace("T", " "), "equipment_id": r["equipment_id"], "equipment_name": r["equipment_name"],
+            "occurred_at": r["occurred_at"], "hour_cost_kzt": r["hour_cost_kzt"], "parts_cost_kzt": r["parts_cost_kzt"],
             "failure_type": r["failure_type"], "failure_label": FAILURE_LABELS.get(r["failure_type"], r["failure_type"]),
             "downtime_min": r["downtime_min"], "raw_text": r["raw_text"], "author": r.get("author_role") or "", "cause": r["cause"],
             "status": r.get("status") or "new", "status_label": db.STATUS_LABELS.get(r.get("status") or "new"), "assignee": r.get("assignee"),
             "resolution": r.get("resolution"), "resolved_at": r.get("resolved_at"), "approved_by": r.get("approved_by"),
-            "escalation_note": r.get("escalation_note"), "is_demo": bool(r["is_demo"])}
+            "escalation_note": r.get("escalation_note"), "is_demo": bool(r["is_demo"]),
+            "source_id": r.get("source_id"), "source_dataset": r.get("source_dataset"), "source_record": r.get("source_record")}
 
 
-def tickets(statuses: Optional[list[str]] = None, author: Optional[str] = None, limit: int = 100) -> list[dict]:
+def ticket(incident_id: int) -> dict | None:
+    rows = db.incidents(incident_id=incident_id)
+    return _ticket(rows[0]) if rows else None
+
+
+def tickets(statuses: Optional[list[str]] = None, author: Optional[str] = None, limit: int | None = 100) -> list[dict]:
     rows = [_ticket(r) for r in reversed(db.incidents())]
     if statuses:
         rows = [t for t in rows if t["status"] in statuses]
@@ -206,12 +252,15 @@ def ticket_counts() -> dict:
     all_ = [_ticket(r) for r in db.incidents()]
     today = date.today().isoformat()
     out = {k: sum(t["status"] == k for t in all_) for k in ("new", "approved", "escalated")}
+    out["archived"] = sum(t["status"] == "archived" for t in all_)
     out["resolved_today"] = sum(t["status"] == "resolved" and (t["resolved_at"] or "")[:10] == today for t in all_)
     return out
 
 
 def ticket_hypotheses(t: dict) -> list[dict]:
     """Быстрые гипотезы причины для механика (по правилам, без вызова ИИ)."""
+    if db.source_profile():
+        return []
     from . import diagnose
     hist = diagnose.history(t["equipment_id"], t["failure_type"])
     return diagnose._present(diagnose.rule_rank(t["raw_text"], t["failure_type"], hist), "rules")
@@ -243,18 +292,37 @@ def reopen_ticket(incident_id: int) -> None:
 
 def use_company(company_id: int) -> None:
     db.set_company(company_id)
+    if db.source_profile():
+        from . import open_data
+        FAILURE_LABELS.update({"kelmarsh:" + row["code"]: open_data.message_ru(row) for row in open_data.events()})
+
+
+def archive_context():
+    return db.source_profile()
+
+
+def archive_report(equipment_id=None, start=None, end=None):
+    from . import archive
+    return archive.report(equipment_id, start, end)
+
+
+def archive_equipment():
+    from . import archive
+    return archive.equipment()
+
+
+def archive_daily(day):
+    from . import archive
+    return archive.daily(day)
+
+
+def archive_record(incident_id):
+    rows = db.incidents(incident_id=incident_id)
+    return rows[0] if rows else None
 
 
 def login(company_code: str, login_: str, pin: str):
     return auth.login(company_code, login_, pin)
-
-
-def session_token(user_id: int) -> str:
-    return auth.make_token(user_id)
-
-
-def user_from_token(token: str):
-    return auth.user_from_token(token)
 
 
 def register_company(name: str, city: str = "", note: str = "") -> dict:
@@ -271,3 +339,23 @@ def list_users(company_id: int) -> list[dict]:
 
 def demo_credentials() -> dict:
     return {"code": seed.DEMO_CODE, "users": [{"name": n, "role": r, "login": l, "pin": p} for n, r, l, p in seed.DEMO_USERS]}
+
+
+def notification_settings(user_id: int) -> dict:
+    return notifications.settings(user_id)
+
+
+def save_notification_settings(user_id: int, recipient: str, enabled: bool) -> None:
+    notifications.save_settings(user_id, recipient, enabled)
+
+
+def test_notification(user_id: int) -> None:
+    notifications.queue_test(user_id)
+
+
+def retry_notifications(user_id: int) -> None:
+    notifications.retry_failed(user_id)
+
+
+def start_notifications() -> None:
+    notifications.start_worker()

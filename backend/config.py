@@ -32,6 +32,16 @@ LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))
 ANALYSIS_WINDOW_DAYS = int(os.getenv("ANALYSIS_WINDOW_DAYS", "30"))
 CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.7"))
 
+# Отправитель уведомлений. Адрес получателя задаётся отдельно для каждой компании.
+SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com").strip()
+try:
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
+except ValueError:
+    SMTP_PORT = 0  # Ошибка почтовой настройки не должна мешать работе самого приложения.
+SMTP_USER = os.getenv("SMTP_USER", "").strip()
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").replace(" ", "")
+SMTP_TIMEOUT = 10
+
 
 def api_keys() -> list[str]:
     raw = {"gemini": [GEMINI_API_KEY, GEMINI_API_KEY_2], "openai": [OPENAI_API_KEY], "anthropic": [ANTHROPIC_API_KEY]}.get(LLM_PROVIDER, [])

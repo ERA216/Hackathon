@@ -8,7 +8,7 @@ import re
 from typing import Optional
 
 from . import config, db, diagnose, llm
-from .schemas import FAILURE_LABELS, ExtractionResult, FailureType
+from .schemas import FAILURE_LABELS, MAX_DOWNTIME_MIN, ExtractionResult, FailureType
 
 # порядок важен: более конкретные признаки проверяются раньше («подшипник греется» — это подшипник, а не перегрев)
 FAILURE_KEYWORDS = {
@@ -65,7 +65,8 @@ def parse_durations(text: str) -> list[tuple[int, str]]:
             val = float(m.group("num").replace(",", "."))
             unit = m.group("unit").lower()
             minutes = val * 60 if unit.startswith(("ч", "сағ")) else val
-            found.append((int(round(minutes)), m.group(0)))
+            if 0 <= minutes <= MAX_DOWNTIME_MIN:
+                found.append((round(minutes), m.group(0)))
     return found
 
 
@@ -73,23 +74,37 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "").lower().replace("ё", "е")).strip()
 
 
-def match_equipment(text: str) -> Optional[str]:
+def _equipment_matches(text: str) -> set[str]:
     t = _norm(text)
     eq = db.equipment_map()
+    by_code = {e["id"] for e in eq.values() if e.get("code") and
+               re.search(r"(?<![\w.-])" + re.escape(_norm(e["code"])) + r"(?![\w-]|\.\w)", t)}
+    if by_code:
+        return by_code
     patterns = [r"(?:станок|станка|станке|станку|станоктың|станокта|ст\.)\s*(?:№|n|#|номер)?\s*(\d+)",
                 r"(?:№|#)\s*(\d+)\s*станок", r"(\d+)\s*[-–]?\s*(?:й|ий|ый|ой)?\s*станок"]
     for pat in patterns:
         m = re.search(pat, t)
         if m and f"M{m.group(1)}" in eq:
-            return f"M{m.group(1)}"
+            return {f"M{m.group(1)}"}
     m = re.search(r"(" + "|".join(ORDINALS) + r")\w*\s+станок", t)
     if m and f"M{ORDINALS[m.group(1)]}" in eq:
-        return f"M{ORDINALS[m.group(1)]}"
+        return {f"M{ORDINALS[m.group(1)]}"}
+    scores = {}
     for e in eq.values():
-        for alias in sorted(e["aliases"], key=len, reverse=True):
-            if len(alias) > 2 and _norm(alias) in t:
-                return e["id"]
-    return None
+        for alias in map(_norm, e["aliases"]):
+            if not alias:
+                continue
+            suffix = r"(?!\w)" if len(alias) <= 2 or alias[-1].isdigit() else ""
+            if re.search(r"(?<!\w)" + re.escape(alias) + suffix, t):
+                scores[e["id"]] = max(scores.get(e["id"], 0), len(alias))
+    best = max(scores.values(), default=0)
+    return {equipment_id for equipment_id, score in scores.items() if score == best}
+
+
+def match_equipment(text: str) -> Optional[str]:
+    matches = _equipment_matches(text)
+    return next(iter(matches)) if len(matches) == 1 else None
 
 
 def unknown_machine_number(text: str) -> Optional[str]:
@@ -116,9 +131,9 @@ def rule_based(raw: str) -> ExtractionResult:
     segments = [s for s in re.split(r"[\n;]+|(?<=[.!?])\s+(?=[А-ЯA-ZӘҒҚҢӨҰҮҺІ])", raw) if s.strip()]
     incidents, questions, current = [], [], None
     for seg in segments:
-        eq = match_equipment(seg)
-        if eq or current is None:
-            current = {"equipment_id": eq, "text": seg}
+        matches = _equipment_matches(seg)
+        if matches or current is None:
+            current = {"equipment_id": next(iter(matches)) if len(matches) == 1 else None, "text": seg}
             incidents.append(current)
         else:
             current["text"] += " " + seg
@@ -164,7 +179,7 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
                 d["equipment_id"] = None
                 issues.append("equipment")
                 num = unknown_machine_number(raw)
-                questions.append(f"Станка №{num} нет в справочнике цеха. Выберите станок из списка или добавьте его в data/equipment.json."
+                questions.append(f"Станка №{num} нет в справочнике цеха. Выберите станок из списка или попросите администратора добавить его."
                                  if num else "Какой станок остановился? Выберите из списка.")
         # 2. Простой: число должно подтверждаться текстом
         mins, quote = d.get("downtime_min"), d.get("downtime_quote")
@@ -189,7 +204,7 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
                 d["cause"] = None
                 issues.append("cause_removed")
         # 3б. Тип поломки не назван — подставляем самый частый по истории станка (мастер подтверждает)
-        if d["failure_type"] == "other" and d["equipment_id"] and detect_failure(raw) == "other":
+        if not db.source_profile() and d["failure_type"] == "other" and d["equipment_id"] and detect_failure(raw) == "other":
             recent = [r["failure_type"] for r in db.incidents(d["equipment_id"])[-10:] if r["failure_type"] != "other"]
             if recent:
                 d["failure_type"] = max(set(recent), key=recent.count)
@@ -201,7 +216,7 @@ def validate(raw: str, result: ExtractionResult) -> tuple[list[dict], list[str]]
         d["needs_review"] = bool(d["issues"])
         d["failure_label"] = FAILURE_LABELS.get(d["failure_type"], d["failure_type"])
         d["equipment_name"] = eq_map[d["equipment_id"]]["name"] if d["equipment_id"] else None
-        d["parts_cost_kzt"] = sum(db.part_price(p["name"]) * p["qty"] for p in d.get("parts", []))
+        d["parts_cost_kzt"] = None if db.source_profile() else sum(db.part_price(p["name"]) * p["qty"] for p in d.get("parts", []))
         drafts.append(d)
     return drafts, list(dict.fromkeys(questions))
 
@@ -210,7 +225,7 @@ def extract(raw: str) -> dict:
     """Возвращает {drafts, questions, mode, warning}. Никогда не бросает исключение из-за ИИ."""
     raw = (raw or "").strip()
     if not raw:
-        raise ValueError("Пустой текст смены. Опишите, что произошло, или вставьте демо-пример.")
+            raise ValueError("Пустой текст смены. Опишите, что произошло с оборудованием.")
     if len(raw) > 4000:
         raise ValueError("Текст слишком длинный (больше 4000 символов). Разбейте отчёт на несколько записей.")
     warning, mode = None, "ai"
@@ -224,7 +239,7 @@ def extract(raw: str) -> dict:
         warning = None if not config.ai_enabled() else e.user_message
     drafts, questions = validate(raw, result)
     for d in drafts:  # шаг 1б: гипотезы о причине по симптомам и истории станка
-        if d["equipment_id"]:
+        if d["equipment_id"] and not db.source_profile():
             dg = diagnose.diagnose(raw, d["equipment_id"], d["failure_type"])
             d["hypotheses"], d["diagnosis_mode"], d["history"] = dg["hypotheses"], dg["mode"], dg["history"]
         else:

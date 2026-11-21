@@ -8,7 +8,18 @@ from typing import Optional
 import pandas as pd
 
 from . import config, db
-from .schemas import FAILURE_LABELS, kzt, num
+from .schemas import FAILURE_LABELS, kzt, loss_label, num
+
+
+def estimate_loss(downtime_min, hourly_rate, parts_cost):
+    if parts_cost is None or (downtime_min > 0 and not hourly_rate):
+        return None
+    return downtime_min / 60 * (hourly_rate or 0) + parts_cost
+
+
+def sum_losses(values):
+    values = list(values)
+    return None if any(pd.isna(value) for value in values) else round(sum(values))
 
 
 def incidents_df(equipment_id: Optional[str] = None) -> pd.DataFrame:
@@ -18,7 +29,7 @@ def incidents_df(equipment_id: Optional[str] = None) -> pd.DataFrame:
         return df
     df["occurred_at"] = pd.to_datetime(df["occurred_at"])
     df["downtime_h"] = df["downtime_min"] / 60
-    df["loss_kzt"] = df["downtime_h"] * df["hour_cost_kzt"] + df["parts_cost_kzt"]
+    df["loss_kzt"] = [estimate_loss(row["downtime_min"], row["hour_cost_kzt"], row["parts_cost_kzt"]) for row in rows]
     return df
 
 
@@ -42,9 +53,19 @@ def group_stats(equipment_id: str, failure_type: str, as_of: Optional[datetime] 
     win = _window(full, as_of, days)
     if win.empty:
         return {"failures": 0, "equipment_id": equipment_id, "failure_type": failure_type}
-    hour_cost = int(win["hour_cost_kzt"].iloc[0])
+    rate = win["hour_cost_kzt"].iloc[0]
+    hour_cost = int(rate) if pd.notna(rate) and rate > 0 else None
     downtime_h = float(win["downtime_h"].sum())
     parts = int(win["parts_cost_kzt"].sum())
+    loss = sum_losses(win["loss_kzt"])
+    if loss is None:
+        formula = "Для полной оценки нужны тариф простоя и стоимость запчастей."
+        if parts:
+            formula += f" Известные расходы на запчасти: {kzt(parts)} ₸."
+    elif downtime_h:
+        formula = f"{num(round(downtime_h, 2))} ч × {kzt(hour_cost)} ₸/ч + {kzt(parts)} ₸ запчасти = {kzt(loss)} ₸"
+    else:
+        formula = f"Простоя не было. Запчасти: {kzt(parts)} ₸."
     return {
         "equipment_id": equipment_id,
         "equipment_name": win["equipment_name"].iloc[0],
@@ -56,10 +77,10 @@ def group_stats(equipment_id: str, failure_type: str, as_of: Optional[datetime] 
         "avg_downtime_h": round(downtime_h / len(win), 2),
         "hour_cost_kzt": hour_cost,
         "parts_kzt": parts,
-        "loss_kzt": int(round(downtime_h * hour_cost + parts)),
+        "loss_kzt": loss,
         "intervals_days": intervals_days(full["occurred_at"])[-4:],
         "incident_ids": [int(i) for i in win["id"]],
-        "formula": f"{num(round(downtime_h, 2))} ч × {kzt(hour_cost)} ₸/ч + {kzt(parts)} ₸ запчасти = {kzt(downtime_h * hour_cost + parts)} ₸",
+        "formula": formula,
     }
 
 
@@ -76,9 +97,10 @@ def equipment_summary(as_of: Optional[datetime] = None, days: Optional[int] = No
             "equipment_name": g["equipment_name"].iloc[0],
             "failures": int(len(g)),
             "downtime_h": round(float(g["downtime_h"].sum()), 2),
-            "loss_kzt": int(round(g["loss_kzt"].sum())),
+            "loss_kzt": sum_losses(g["loss_kzt"]),
+            "parts_kzt": int(g["parts_cost_kzt"].sum()),
         })
-    return sorted(out, key=lambda r: r["loss_kzt"], reverse=True)
+    return sorted(out, key=lambda r: (r["loss_kzt"] is None, -(r["loss_kzt"] or 0)))
 
 
 def anomalies(as_of: Optional[datetime] = None, days: Optional[int] = None) -> list[dict]:
@@ -106,15 +128,15 @@ def anomalies(as_of: Optional[datetime] = None, days: Optional[int] = None) -> l
                 reasons.append(f"последний простой {int(last)} мин — в {last / med:.1f} раза дольше обычного")
         if not reasons:
             continue
-        severity = "high" if len(reasons) >= 2 or st["loss_kzt"] >= 150000 else "medium"
+        severity = "high" if len(reasons) >= 2 or (st["loss_kzt"] or 0) >= 150000 else "medium"
         signals.append({
             **st,
             "severity": severity,
             "reasons": reasons,
             "title": f"{st['equipment_name']} · {st['failure_label']} повторяется",
-            "message": f"{st['equipment_name']}: " + "; ".join(reasons) + f". Потери за период ≈ {kzt(st['loss_kzt'])} ₸.",
+            "message": f"{st['equipment_name']}: " + "; ".join(reasons) + f". Потери за период: {loss_label(st['loss_kzt'], st['parts_kzt'])}.",
         })
-    return sorted(signals, key=lambda s: (s["severity"] != "high", -s["loss_kzt"]))
+    return sorted(signals, key=lambda s: (s["severity"] != "high", s["loss_kzt"] is None, -(s["loss_kzt"] or 0)))
 
 
 def measure_effect(equipment_id: str, failure_types: list[str], applied_at: str) -> dict:
@@ -169,7 +191,8 @@ def equipment_health(today: Optional[datetime] = None) -> list[dict]:
         win = _window(g, today + timedelta(hours=23, minutes=59), days) if not g.empty else g
         failures = int(len(win))
         downtime_h = round(float(win["downtime_h"].sum()), 1) if failures else 0.0
-        loss = int(round(win["loss_kzt"].sum())) if failures else 0
+        loss = sum_losses(win["loss_kzt"]) if failures else 0
+        parts = int(win["parts_cost_kzt"].sum()) if failures else 0
         iv = intervals_days(g["occurred_at"]) if len(g) >= 2 else []
         recent = [x for x in iv[-3:] if x > 0]
         last_date = g["occurred_at"].max().normalize() if not g.empty else None
@@ -189,7 +212,7 @@ def equipment_health(today: Optional[datetime] = None) -> list[dict]:
         elif insp and insp["state"] == "remark" and risk == "low":
             risk = "medium"
         if failures:
-            reasons.append(f"за {days} дн. поломок: {failures}, простой {num(downtime_h)} ч, убыток ≈ {kzt(loss)} ₸")
+            reasons.append(f"за {days} дн. поломок: {failures}, простой {num(downtime_h)} ч, потери: {loss_label(loss, parts)}")
         else:
             reasons.append(f"за {days} дн. поломок не было")
         if shrinking:
@@ -203,7 +226,7 @@ def equipment_health(today: Optional[datetime] = None) -> list[dict]:
             reasons.append(f"последний обход {insp['created_at'][:10]}: {STATE_LABELS[insp['state']].lower()}" + (f" — {insp['note']}" if insp.get("note") else ""))
         health = 100 - failures * 12 - int(downtime_h * 4) - (15 if shrinking else 0) - (20 if insp and insp["state"] == "problem" else 8 if insp and insp["state"] == "remark" else 0)
         out.append({"equipment_id": e["id"], "equipment_name": e["name"], "line": e["line"], "failures": failures, "downtime_h": downtime_h,
-                    "loss_kzt": loss, "risk": risk, "health": max(5, min(100, health)), "days_to_next": days_to_next, "expected_interval": expected,
+                    "loss_kzt": loss, "parts_kzt": parts, "risk": risk, "health": max(5, min(100, health)), "days_to_next": days_to_next, "expected_interval": expected,
                     "shrinking": shrinking, "last_inspection": insp, "explanation": ("; ".join(reasons) + ".").replace("..", ".")})
     order = {"high": 0, "medium": 1, "low": 2}
-    return sorted(out, key=lambda r: (order[r["risk"]], -r["loss_kzt"], r["health"]))
+    return sorted(out, key=lambda r: (order[r["risk"]], r["loss_kzt"] is None, -(r["loss_kzt"] or 0), r["health"]))

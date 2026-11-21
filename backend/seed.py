@@ -140,4 +140,8 @@ def reset_demo() -> None:
     with db.connect() as c:
         for t in ("incidents", "recommendations", "applied_measures", "shift_logs", "inspections"):
             c.execute(f"DELETE FROM {t} WHERE company_id=?", (cid,))
+        c.execute("DELETE FROM company_sources WHERE company_id=?", (cid,))
+        c.execute("UPDATE companies SET name=?,city='Павлодар',is_demo=1 WHERE id=?", (COMPANY_NAME, cid))
+        for name, role, login, pin in DEMO_USERS:
+            c.execute("UPDATE users SET display_name=? WHERE company_id=? AND login=?", (name, cid, login))
     seed_demo()

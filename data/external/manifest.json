@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "retrieved_at": "2026-11-11T17:02:38+00:00",
+  "kelmarsh": {
+    "title": "Kelmarsh wind farm data",
+    "version": "v4",
+    "doi": "10.5281/zenodo.16807551",
+    "url": "https://zenodo.org/records/16807551",
+    "download_url": "https://zenodo.org/records/16807551/files/Kelmarsh_SCADA_2016_3082.zip?download=1",
+    "creators": [
+      "Charlie Plumley",
+      "Roberta Takeuchi"
+    ],
+    "publisher": "Cubico Sustainable Investments Ltd",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "coverage_start": "2016-01-01T00:00:00+00:00",
+    "coverage_end": "2017-01-01T00:00:00+00:00",
+    "timezone": "UTC",
+    "equipment_count": 6,
+    "count": 177,
+    "source_rows": 14019,
+    "sources": [
+      {
+        "file": "Status_Kelmarsh_1_2016-01-03_-_2017-01-01_228.csv",
+        "sha256": "7a8438101ab6f9acbe9554ba65a556328c9034e0e2030ee8e655ad2c2c1f995e",
+        "rows": 2122
+      },
+      {
+        "file": "Status_Kelmarsh_2_2016-01-03_-_2017-01-01_229.csv",
+        "sha256": "ca225e0bd1fbd10bfadfb6af1c029d8c45d5b19ea229c44c476f54803ed32217",
+        "rows": 1790
+      },
+      {
+        "file": "Status_Kelmarsh_3_2016-01-03_-_2017-01-01_230.csv",
+        "sha256": "bf2875ee2ebc72f1f3b1691fac1294c261b942a9056783f95a3e2bc919810ef1",
+        "rows": 2873
+      },
+      {
+        "file": "Status_Kelmarsh_4_2016-01-03_-_2017-01-01_231.csv",
+        "sha256": "11c0eb5ae9e99600e0f027829903ce61d088edcd8d26955b01cb573a9b318ffe",
+        "rows": 1929
+      },
+      {
+        "file": "Status_Kelmarsh_5_2016-01-03_-_2017-01-01_232.csv",
+        "sha256": "f29446f7ffec196bfa92ecf3c34b81cf84cd88892c803fa8c19f1b9d8435c9b5",
+        "rows": 2116
+      },
+      {
+        "file": "Status_Kelmarsh_6_2016-01-03_-_2017-01-01_233.csv",
+        "sha256": "9f915e9ee7022cbd394239985a9c9fb7f26972df77dc0a3a9b42dbaf6e733455",
+        "rows": 3189
+      }
+    ],
+    "excluded": [
+      {
+        "file": "Status_Kelmarsh_2_2016-01-03_-_2017-01-01_229.csv",
+        "row": 1,
+        "reason": "Missing start, end or duration; not treated as zero downtime."
+      },
+      {
+        "file": "Status_Kelmarsh_2_2016-01-03_-_2017-01-01_229.csv",
+        "row": 2,
+        "reason": "Missing start, end or duration; not treated as zero downtime."
+      },
+      {
+        "file": "Status_Kelmarsh_2_2016-01-03_-_2017-01-01_229.csv",
+        "row": 3,
+        "reason": "Missing start, end or duration; not treated as zero downtime."
+      },
+      {
+        "file": "Status_Kelmarsh_3_2016-01-03_-_2017-01-01_230.csv",
+        "row": 1,
+        "reason": "Missing start, end or duration; not treated as zero downtime."
+      },
+      {
+        "file": "Status_Kelmarsh_6_2016-01-03_-_2017-01-01_233.csv",
+        "row": 26,
+        "reason": "Missing start, end or duration; not treated as zero downtime."
+      }
+    ],
+    "selection": "All complete, positive-duration rows with Status=Stop and IEC category=Forced outage from all six 2016 status CSV files. No event subsampling or date shifting. Incomplete rows listed in excluded.",
+    "changes": "CSV to JSON; stable source-row IDs, UTC timestamps and checked durations in seconds added. Messages and original fields retained. No repair costs or causes inferred.",
+    "sha256": "e0633d84344b14efd7dceb44c987b8579827fcf4bb3692868b5d845468612710"
+  },
+  "maintie": {
+    "title": "MaintIE: Maintenance Information Extraction",
+    "url": "https://github.com/nlp-tlp/maintie",
+    "commit": "825e7710e4129598da997276a38b3cb40b200bc2",
+    "download_url": "https://raw.githubusercontent.com/nlp-tlp/maintie/825e7710e4129598da997276a38b3cb40b200bc2/data/gold_release.json",
+    "license": "MIT",
+    "license_file": "MaintIE_LICENSE.md",
+    "creators": [
+      "Tyler K. Bikaun",
+      "Tim French",
+      "Michael Stewart",
+      "Wei Liu",
+      "Melinda Hodkiewicz"
+    ],
+    "count": 80,
+    "source_count": 1076,
+    "source_sha256": "ef811cf4ffd0c90e6a13b1369e24e9d1d08f9a294d873ab4fb1a580096d7d6e0",
+    "selection": "80 gold examples about industrial components, at least 3 tokens and 2 entities; deterministic random sample with seed=42. A curated demo subset, not an unbiased benchmark.",
+    "changes": "Original text, tokens, entities and relations unchanged; stable IDs and zero-based source indexes added. No dates, equipment identifiers, downtime or costs added.",
+    "sha256": "3574ba77d87dee7a4d8471e912948cbffbe3974bd64ccff97bf4c7f4241e3e10"
+  }
+}

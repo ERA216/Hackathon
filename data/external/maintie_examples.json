@@ -1,0 +1,3892 @@
+[
+  {
+    "id": "MAINTIE-GOLD-0017",
+    "source_index": 16,
+    "text": "<id> air leak",
+    "tokens": [
+      "<id>",
+      "air",
+      "leak"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/Substance/Gas"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0056",
+    "source_index": 55,
+    "text": "<id> belt on alternator",
+    "tokens": [
+      "<id>",
+      "belt",
+      "on",
+      "alternator"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/GuidingObject/MechanicalEnergyGuidingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/GeneratingObject/MechanicalToElectricalEnergyGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0077",
+    "source_index": 76,
+    "text": "<id> blown oil cooler hose - <num> x <num> <num> metre",
+    "tokens": [
+      "<id>",
+      "blown",
+      "oil",
+      "cooler",
+      "hose",
+      "-",
+      "<num>",
+      "x",
+      "<num>",
+      "<num>",
+      "metre"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/EmittingObject/ThermalCoolingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/EmittingObject/ThermalCoolingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0086",
+    "source_index": 85,
+    "text": "<id> boilermaker repairs to engine cover",
+    "tokens": [
+      "<id>",
+      "boilermaker",
+      "repairs",
+      "to",
+      "engine",
+      "cover"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/CoveringObject/ClosureObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/Organism/Person"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0092",
+    "source_index": 91,
+    "text": "<id> both stick cylinders leaking",
+    "tokens": [
+      "<id>",
+      "both",
+      "stick",
+      "cylinders",
+      "leaking"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0118",
+    "source_index": 117,
+    "text": "<id> centrifugal oil filter fault",
+    "tokens": [
+      "<id>",
+      "centrifugal",
+      "oil",
+      "filter",
+      "fault"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "State/UndesirableState"
+      },
+      {
+        "start": 1,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "isA"
+      },
+      {
+        "head": 3,
+        "tail": 0,
+        "type": "isA"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0119",
+    "source_index": 118,
+    "text": "<id> centrifugal oil filter leaking",
+    "tokens": [
+      "<id>",
+      "centrifugal",
+      "oil",
+      "filter",
+      "leaking"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 1,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "isA"
+      },
+      {
+        "head": 3,
+        "tail": 0,
+        "type": "isA"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0125",
+    "source_index": 124,
+    "text": "<id> change oil and filters",
+    "tokens": [
+      "<id>",
+      "change",
+      "oil",
+      "and",
+      "filters"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0135",
+    "source_index": 134,
+    "text": "<id> change out broken bolt on brake pump",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "broken",
+      "bolt",
+      "on",
+      "brake",
+      "pump"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/HoldingObject/FasteningObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/RestrictingObject/MovementRestrictingObject"
+      },
+      {
+        "start": 7,
+        "end": 8,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 4,
+        "type": "hasPart"
+      },
+      {
+        "head": 4,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0141",
+    "source_index": 140,
+    "text": "<id> change out engine",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "engine"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0142",
+    "source_index": 141,
+    "text": "<id> change out engine % more WOs",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "engine",
+      "%",
+      "more",
+      "WOs"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0149",
+    "source_index": 148,
+    "text": "<id> change out leak slew motor hose",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "leak",
+      "slew",
+      "motor",
+      "hose"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      },
+      {
+        "head": 2,
+        "tail": 4,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0153",
+    "source_index": 152,
+    "text": "<id> change out leaking hydraulic hose",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "leaking",
+      "hydraulic",
+      "hose"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0156",
+    "source_index": 155,
+    "text": "<id> change out leaking steering hose",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "leaking",
+      "steering",
+      "hose"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/ControllingObject/MechanicalMovementControllingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0161",
+    "source_index": 160,
+    "text": "<id> change out left hand steering cylinder leaking",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "left",
+      "hand",
+      "steering",
+      "cylinder",
+      "leaking"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      },
+      {
+        "start": 7,
+        "end": 8,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 1,
+        "tail": 3,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0175",
+    "source_index": 174,
+    "text": "<id> change out starter motor",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "starter",
+      "motor"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0177",
+    "source_index": 176,
+    "text": "<id> change out unserviceable jacket water pump",
+    "tokens": [
+      "<id>",
+      "change",
+      "out",
+      "unserviceable",
+      "jacket",
+      "water",
+      "pump"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 4,
+        "end": 7,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      },
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 4,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0203",
+    "source_index": 202,
+    "text": "<id> chord leaking air found <id>",
+    "tokens": [
+      "<id>",
+      "chord",
+      "leaking",
+      "air",
+      "found",
+      "<id>"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/Substance/Gas"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/HoldingObject/StructuralSupportingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0212",
+    "source_index": 211,
+    "text": "<id> coolant leak at jacket water pump",
+    "tokens": [
+      "<id>",
+      "coolant",
+      "leak",
+      "at",
+      "jacket",
+      "water",
+      "pump"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/ProtectingObject/TemperatureProtectingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 4,
+        "end": 7,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 4,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0254",
+    "source_index": 253,
+    "text": "<id> differential leak",
+    "tokens": [
+      "<id>",
+      "differential",
+      "leak"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0257",
+    "source_index": 256,
+    "text": "<id> differential lube pump leaking PO",
+    "tokens": [
+      "<id>",
+      "differential",
+      "lube",
+      "pump",
+      "leaking",
+      "PO"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0278",
+    "source_index": 277,
+    "text": "<id> ripper control valve falling off",
+    "tokens": [
+      "<id>",
+      "ripper",
+      "control",
+      "valve",
+      "falling",
+      "off"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/ControllingObject/SealedFluidVaryingObject"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0302",
+    "source_index": 301,
+    "text": "hoist motor <num> RTD wired incorrectly",
+    "tokens": [
+      "hoist",
+      "motor",
+      "<num>",
+      "RTD",
+      "wired",
+      "incorrectly"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/SensingObject/ResistivitySensingObject"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/GeneratingObject/DiscontinuousTransferObject"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "State/UndesirableState/FailedState"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0307",
+    "source_index": 306,
+    "text": "<id> swing motor blower lube inspect",
+    "tokens": [
+      "<id>",
+      "swing",
+      "motor",
+      "blower",
+      "lube",
+      "inspect"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/GeneratingObject/GaseousFlowGeneratingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "Activity/MaintenanceActivity/Inspect"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 3,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "contains"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "contains"
+      },
+      {
+        "head": 2,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0320",
+    "source_index": 319,
+    "text": "change pulley bearings on number <num> pulley",
+    "tokens": [
+      "change",
+      "pulley",
+      "bearings",
+      "on",
+      "number",
+      "<num>",
+      "pulley"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/GuidingObject/MechanicalEnergyGuidingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/HoldingObject/JointingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/GuidingObject/MechanicalEnergyGuidingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0351",
+    "source_index": 350,
+    "text": "system <id> pump pressure gauge not working",
+    "tokens": [
+      "system",
+      "<id>",
+      "pump",
+      "pressure",
+      "gauge",
+      "not",
+      "working"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/PresentingObject/ScalarDisplay"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/PresentingObject/ScalarDisplay"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "State/UndesirableState/FailedState"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0359",
+    "source_index": 358,
+    "text": "<id> replace auto-greaser vent valve",
+    "tokens": [
+      "<id>",
+      "replace",
+      "auto-greaser",
+      "vent",
+      "valve"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/ControllingObject/SealedFluidVaryingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0387",
+    "source_index": 386,
+    "text": "<id> replace leaking scavenge pump",
+    "tokens": [
+      "<id>",
+      "replace",
+      "leaking",
+      "scavenge",
+      "pump"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0390",
+    "source_index": 389,
+    "text": "change out leaking transmission hose",
+    "tokens": [
+      "change",
+      "out",
+      "leaking",
+      "transmission",
+      "hose"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 3,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0396",
+    "source_index": 395,
+    "text": "replace hoist pony drive motor",
+    "tokens": [
+      "replace",
+      "hoist",
+      "pony",
+      "drive",
+      "motor"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/GeneratingObject/DiscontinuousTransferObject"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 2,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "hasPart"
+      },
+      {
+        "head": 4,
+        "tail": 2,
+        "type": "isA"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0397",
+    "source_index": 396,
+    "text": "<num> hour mechanical inspection hydraulic cylinder bucket right hand <id>",
+    "tokens": [
+      "<num>",
+      "hour",
+      "mechanical",
+      "inspection",
+      "hydraulic",
+      "cylinder",
+      "bucket",
+      "right",
+      "hand",
+      "<id>"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Inspect"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Inspect"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/StoringObject/MoveableStoringObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "isA"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 4,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0399",
+    "source_index": 398,
+    "text": "oil leak swingbox <num>",
+    "tokens": [
+      "oil",
+      "leak",
+      "swingbox",
+      "<num>"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "contains"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0408",
+    "source_index": 407,
+    "text": "parts washer pump broken",
+    "tokens": [
+      "parts",
+      "washer",
+      "pump",
+      "broken"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 0,
+        "end": 2,
+        "type": "PhysicalObject/InterfacingObject/CollectingInterfacingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0412",
+    "source_index": 411,
+    "text": "<id> engine oil leaks right hand side",
+    "tokens": [
+      "<id>",
+      "engine",
+      "oil",
+      "leaks",
+      "right",
+      "hand",
+      "side"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "contains"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0419",
+    "source_index": 418,
+    "text": "CW <id> - change out universal joints engine - pump drive PO",
+    "tokens": [
+      "CW",
+      "<id>",
+      "-",
+      "change",
+      "out",
+      "universal",
+      "joints",
+      "engine",
+      "-",
+      "pump",
+      "drive",
+      "PO"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 5,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 7,
+        "end": 8,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 9,
+        "end": 11,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0430",
+    "source_index": 429,
+    "text": "replace hydraulic pump coupling",
+    "tokens": [
+      "replace",
+      "hydraulic",
+      "pump",
+      "coupling"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 1,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/InterfacingObject/DetachableCoupling"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      },
+      {
+        "head": 1,
+        "tail": 3,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0441",
+    "source_index": 440,
+    "text": "fitting leaking out of main air tanks",
+    "tokens": [
+      "fitting",
+      "leaking",
+      "out",
+      "of",
+      "main",
+      "air",
+      "tanks"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/InterfacingObject/SealedFlowConnectingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "PhysicalObject/StoringObject/EnclosedStationaryStoringObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/StoringObject/EnclosedStationaryStoringObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0462",
+    "source_index": 461,
+    "text": "replace bearing and taperlock on <id> roller",
+    "tokens": [
+      "replace",
+      "bearing",
+      "and",
+      "taperlock",
+      "on",
+      "<id>",
+      "roller"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/HoldingObject/JointingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/HoldingObject/JointingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/HoldingObject/JointingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0463",
+    "source_index": 462,
+    "text": "fit passengers side seat belt",
+    "tokens": [
+      "fit",
+      "passengers",
+      "side",
+      "seat",
+      "belt"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/SupportingActivity/Assemble"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/RestrictingObject/MovementRestrictingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0469",
+    "source_index": 468,
+    "text": "<id> replace coolant sensor",
+    "tokens": [
+      "<id>",
+      "replace",
+      "coolant",
+      "sensor"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/SensingObject/LevelSensingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0474",
+    "source_index": 473,
+    "text": "<id> replace blown main pump hose",
+    "tokens": [
+      "<id>",
+      "replace",
+      "blown",
+      "main",
+      "pump",
+      "hose"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0488",
+    "source_index": 487,
+    "text": "oil leak from behind water pump",
+    "tokens": [
+      "oil",
+      "leak",
+      "from",
+      "behind",
+      "water",
+      "pump"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0492",
+    "source_index": 491,
+    "text": "<id> replace axle oil cooler",
+    "tokens": [
+      "<id>",
+      "replace",
+      "axle",
+      "oil",
+      "cooler"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GuidingObject/MechanicalEnergyGuidingObject"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/EmittingObject/ThermalCoolingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/EmittingObject/ThermalCoolingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0507",
+    "source_index": 506,
+    "text": "<id> - PTO shaft input seal leaking",
+    "tokens": [
+      "<id>",
+      "-",
+      "PTO",
+      "shaft",
+      "input",
+      "seal",
+      "leaking"
+    ],
+    "entities": [
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/CoveringObject/InfillingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/CoveringObject/InfillingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/GuidingObject/MechanicalEnergyGuidingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 4,
+        "tail": 0,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "isA"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0519",
+    "source_index": 518,
+    "text": "<id> - air conditioner compressor",
+    "tokens": [
+      "<id>",
+      "-",
+      "air",
+      "conditioner",
+      "compressor"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/EmittingObject/ElectricCoolingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/GeneratingObject/GaseousFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0550",
+    "source_index": 549,
+    "text": "<id> - change out coolant pump",
+    "tokens": [
+      "<id>",
+      "-",
+      "change",
+      "out",
+      "coolant",
+      "pump"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0561",
+    "source_index": 560,
+    "text": "<id> - change out hydraulic motor cooler fan",
+    "tokens": [
+      "<id>",
+      "-",
+      "change",
+      "out",
+      "hydraulic",
+      "motor",
+      "cooler",
+      "fan"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      },
+      {
+        "start": 7,
+        "end": 8,
+        "type": "PhysicalObject/GeneratingObject/GaseousFlowGeneratingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/EmittingObject/ThermalCoolingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 3,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0573",
+    "source_index": 572,
+    "text": "<id> - change out plugged fuel filters",
+    "tokens": [
+      "<id>",
+      "-",
+      "change",
+      "out",
+      "plugged",
+      "fuel",
+      "filters"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 5,
+        "end": 7,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "State/UndesirableState/FailedState"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0576",
+    "source_index": 575,
+    "text": "<id> - change out right hand engine air conditioner compressor PO",
+    "tokens": [
+      "<id>",
+      "-",
+      "change",
+      "out",
+      "right",
+      "hand",
+      "engine",
+      "air",
+      "conditioner",
+      "compressor",
+      "PO"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 7,
+        "end": 9,
+        "type": "PhysicalObject/EmittingObject/ElectricCoolingObject"
+      },
+      {
+        "start": 9,
+        "end": 10,
+        "type": "PhysicalObject/GeneratingObject/GaseousFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0579",
+    "source_index": 578,
+    "text": "<id> - change out starter motor lower",
+    "tokens": [
+      "<id>",
+      "-",
+      "change",
+      "out",
+      "starter",
+      "motor",
+      "lower"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0600",
+    "source_index": 599,
+    "text": "<id> - coolant leak",
+    "tokens": [
+      "<id>",
+      "-",
+      "coolant",
+      "leak"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/ProtectingObject/TemperatureProtectingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0603",
+    "source_index": 602,
+    "text": "<id> - differential oil leak",
+    "tokens": [
+      "<id>",
+      "-",
+      "differential",
+      "oil",
+      "leak"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "contains"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0606",
+    "source_index": 605,
+    "text": "<id> - drag motor blower lube electrical",
+    "tokens": [
+      "<id>",
+      "-",
+      "drag",
+      "motor",
+      "blower",
+      "lube",
+      "electrical"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/GeneratingObject/GaseousFlowGeneratingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/ContinuousTransferObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "Activity/MaintenanceActivity/Service"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0608",
+    "source_index": 607,
+    "text": "<id> - engine bay light blown",
+    "tokens": [
+      "<id>",
+      "-",
+      "engine",
+      "bay",
+      "light",
+      "blown"
+    ],
+    "entities": [
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/EmittingObject/LightObject"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/HoldingObject/EnclosingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "State/UndesirableState/FailedState"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0611",
+    "source_index": 610,
+    "text": "<id> - engine oil leak - inspection plate",
+    "tokens": [
+      "<id>",
+      "-",
+      "engine",
+      "oil",
+      "leak",
+      "-",
+      "inspection",
+      "plate"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 6,
+        "end": 8,
+        "type": "PhysicalObject/PresentingObject/ScalarDisplay"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "contains"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0615",
+    "source_index": 614,
+    "text": "<id> - engine tune",
+    "tokens": [
+      "<id>",
+      "-",
+      "engine",
+      "tune"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Service"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0616",
+    "source_index": 615,
+    "text": "<id> - engine vibration <num>-<num> RPM",
+    "tokens": [
+      "<id>",
+      "-",
+      "engine",
+      "vibration",
+      "<num>-<num>",
+      "RPM"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0633",
+    "source_index": 632,
+    "text": "<id> - inspect hydraulic cylinder boom lift right",
+    "tokens": [
+      "<id>",
+      "-",
+      "inspect",
+      "hydraulic",
+      "cylinder",
+      "boom",
+      "lift",
+      "right"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Inspect"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/DrivingObject/FluidPoweredDrivingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/HoldingObject/StructuralSupportingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0638",
+    "source_index": 637,
+    "text": "<id> - inspection equalizer bar out bearing right",
+    "tokens": [
+      "<id>",
+      "-",
+      "inspection",
+      "equalizer",
+      "bar",
+      "out",
+      "bearing",
+      "right"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Inspect"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/HoldingObject/JointingObject"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/HoldingObject/ReinforcingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0680",
+    "source_index": 679,
+    "text": "<id> - repair engine oil hose",
+    "tokens": [
+      "<id>",
+      "-",
+      "repair",
+      "engine",
+      "oil",
+      "hose"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "isA"
+      },
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0682",
+    "source_index": 681,
+    "text": "<id> - repair engine oil leaking",
+    "tokens": [
+      "<id>",
+      "-",
+      "repair",
+      "engine",
+      "oil",
+      "leaking"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "contains"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0733",
+    "source_index": 732,
+    "text": "<id> - temperature readings swing motors <num> and <num>",
+    "tokens": [
+      "<id>",
+      "-",
+      "temperature",
+      "readings",
+      "swing",
+      "motors",
+      "<num>",
+      "and",
+      "<num>"
+    ],
+    "entities": [
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "Activity/MaintenanceActivity/Diagnose"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0744",
+    "source_index": 743,
+    "text": "<id> <id> engine shutdown fault",
+    "tokens": [
+      "<id>",
+      "<id>",
+      "engine",
+      "shutdown",
+      "fault"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "State/UndesirableState"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "State/UndesirableState"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0750",
+    "source_index": 749,
+    "text": "<id> <id> repair engine oil leak text",
+    "tokens": [
+      "<id>",
+      "<id>",
+      "repair",
+      "engine",
+      "oil",
+      "leak",
+      "text"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/DrivingObject/CombustionEngine"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "contains"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0751",
+    "source_index": 750,
+    "text": "<id> <id> repair transmission oil leak text",
+    "tokens": [
+      "<id>",
+      "<id>",
+      "repair",
+      "transmission",
+      "oil",
+      "leak",
+      "text"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "contains"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0754",
+    "source_index": 753,
+    "text": "<id> <id> replace hydraulic oil leak text",
+    "tokens": [
+      "<id>",
+      "<id>",
+      "replace",
+      "hydraulic",
+      "oil",
+      "leak",
+      "text"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "Process/UndesirableProcess"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/Substance/Liquid"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0837",
+    "source_index": 836,
+    "text": "centrifuge hose leaking - replace",
+    "tokens": [
+      "centrifuge",
+      "hose",
+      "leaking",
+      "-",
+      "replace"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/MatterProcessingObject/ForceSeparatingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/GuidingObject/ClosedEnclosureGuidingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasParticipant/hasAgent"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0850",
+    "source_index": 849,
+    "text": "close and lock low voltage door on compressor",
+    "tokens": [
+      "close",
+      "and",
+      "lock",
+      "low",
+      "voltage",
+      "door",
+      "on",
+      "compressor"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/SupportingActivity/Operate"
+      },
+      {
+        "start": 7,
+        "end": 8,
+        "type": "PhysicalObject/GeneratingObject/GaseousFlowGeneratingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/ControllingObject/SpaceAccessObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Activity/SupportingActivity/Operate"
+      },
+      {
+        "start": 3,
+        "end": 6,
+        "type": "PhysicalObject/ControllingObject/SpaceAccessObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 4,
+        "tail": 2,
+        "type": "isA"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0925",
+    "source_index": 924,
+    "text": "left hand PTO pump chip sensor harness unserviceable",
+    "tokens": [
+      "left",
+      "hand",
+      "PTO",
+      "pump",
+      "chip",
+      "sensor",
+      "harness",
+      "unserviceable"
+    ],
+    "entities": [
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/SensingObject/ConcentrationSensingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 7,
+        "end": 8,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "PhysicalObject/HoldingObject/StructuralSupportingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 0,
+        "tail": 4,
+        "type": "hasPart"
+      },
+      {
+        "head": 3,
+        "tail": 4,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0930",
+    "source_index": 929,
+    "text": "modify low pressure pilot valve [ warranty ]",
+    "tokens": [
+      "modify",
+      "low",
+      "pressure",
+      "pilot",
+      "valve",
+      "[",
+      "warranty",
+      "]"
+    ],
+    "entities": [
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/SupportingActivity/Modify"
+      },
+      {
+        "start": 3,
+        "end": 5,
+        "type": "PhysicalObject/InformationProcessingObject/FluidSignallingObject"
+      },
+      {
+        "start": 1,
+        "end": 5,
+        "type": "PhysicalObject/InformationProcessingObject/FluidSignallingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "isA"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0936",
+    "source_index": 935,
+    "text": "oil leak inlet to oil burner cover plate",
+    "tokens": [
+      "oil",
+      "leak",
+      "inlet",
+      "to",
+      "oil",
+      "burner",
+      "cover",
+      "plate"
+    ],
+    "entities": [
+      {
+        "start": 6,
+        "end": 8,
+        "type": "PhysicalObject/CoveringObject/ClosureObject"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/ProtectingObject/WearProtectingObject"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/EmittingObject/CombustionHeatingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 0,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0946",
+    "source_index": 945,
+    "text": "position <num> pump cavity low",
+    "tokens": [
+      "position",
+      "<num>",
+      "pump",
+      "cavity",
+      "low"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/InterfacingObject/SpaceLinkingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "State/UndesirableState"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0955",
+    "source_index": 954,
+    "text": "pump drive box coupling and shaft unserviceable",
+    "tokens": [
+      "pump",
+      "drive",
+      "box",
+      "coupling",
+      "and",
+      "shaft",
+      "unserviceable"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/InterfacingObject/NonDetachableCoupling"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/TransformingObject/MechanicalEnergyTransformingObject"
+      },
+      {
+        "start": 6,
+        "end": 7,
+        "type": "State/UndesirableState/FailedState"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "PhysicalObject/GeneratingObject/LiquidFlowGeneratingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/DrivingObject/ElectromagneticRotationalDrivingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 4,
+        "type": "hasPart"
+      },
+      {
+        "head": 4,
+        "tail": 0,
+        "type": "hasPart"
+      },
+      {
+        "head": 4,
+        "tail": 1,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0975",
+    "source_index": 974,
+    "text": "repair air leak at air tank safety valve",
+    "tokens": [
+      "repair",
+      "air",
+      "leak",
+      "at",
+      "air",
+      "tank",
+      "safety",
+      "valve"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/Substance/Gas"
+      },
+      {
+        "start": 4,
+        "end": 6,
+        "type": "PhysicalObject/StoringObject/EnclosedStationaryStoringObject"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 6,
+        "end": 8,
+        "type": "PhysicalObject/ProtectingObject/PressureProtectingObject"
+      },
+      {
+        "start": 5,
+        "end": 6,
+        "type": "PhysicalObject/StoringObject/EnclosedStationaryStoringObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 3,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 5,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 5,
+        "tail": 3,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 1,
+        "tail": 4,
+        "type": "isA"
+      },
+      {
+        "head": 1,
+        "tail": 3,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-0987",
+    "source_index": 986,
+    "text": "repair faulty safety valve",
+    "tokens": [
+      "repair",
+      "faulty",
+      "safety",
+      "valve"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 2,
+        "type": "State/UndesirableState"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Repair"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/ProtectingObject/PressureProtectingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-1002",
+    "source_index": 1001,
+    "text": "replace o-ring on centrifuge filter",
+    "tokens": [
+      "replace",
+      "o-ring",
+      "on",
+      "centrifuge",
+      "filter"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/MatterProcessingObject/ForceSeparatingObject"
+      },
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/CoveringObject/InfillingObject"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Replace"
+      }
+    ],
+    "relations": [
+      {
+        "head": 3,
+        "tail": 2,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 0,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 2,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-1031",
+    "source_index": 1030,
+    "text": "replace steering pilot valve covers",
+    "tokens": [
+      "replace",
+      "steering",
+      "pilot",
+      "valve",
+      "covers"
+    ],
+    "entities": [
+      {
+        "start": 4,
+        "end": 5,
+        "type": "PhysicalObject/CoveringObject/ClosureObject"
+      },
+      {
+        "start": 2,
+        "end": 4,
+        "type": "PhysicalObject/InformationProcessingObject/FluidSignallingObject"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Replace"
+      },
+      {
+        "start": 1,
+        "end": 2,
+        "type": "PhysicalObject/ControllingObject/MechanicalMovementControllingObject"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      },
+      {
+        "head": 3,
+        "tail": 1,
+        "type": "hasPart"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-1040",
+    "source_index": 1039,
+    "text": "reseal non-return valve",
+    "tokens": [
+      "reseal",
+      "non-return",
+      "valve"
+    ],
+    "entities": [
+      {
+        "start": 1,
+        "end": 3,
+        "type": "PhysicalObject/RestrictingObject/ReturnFlowRestrictingObject"
+      },
+      {
+        "start": 0,
+        "end": 1,
+        "type": "Activity/MaintenanceActivity/Repair"
+      }
+    ],
+    "relations": [
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-1070",
+    "source_index": 1069,
+    "text": "water separator filter leaking see photo",
+    "tokens": [
+      "water",
+      "separator",
+      "filter",
+      "leaking",
+      "see",
+      "photo"
+    ],
+    "entities": [
+      {
+        "start": 2,
+        "end": 3,
+        "type": "PhysicalObject/MatterProcessingObject/MechanicalSeparatingObject"
+      },
+      {
+        "start": 0,
+        "end": 2,
+        "type": "PhysicalObject/MatterProcessingObject/ForceSeparatingObject"
+      },
+      {
+        "start": 3,
+        "end": 4,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 1,
+        "tail": 0,
+        "type": "hasPart"
+      }
+    ]
+  },
+  {
+    "id": "MAINTIE-GOLD-1071",
+    "source_index": 1070,
+    "text": "water separator leaking fuel",
+    "tokens": [
+      "water",
+      "separator",
+      "leaking",
+      "fuel"
+    ],
+    "entities": [
+      {
+        "start": 3,
+        "end": 4,
+        "type": "PhysicalObject/Substance/Liquid"
+      },
+      {
+        "start": 0,
+        "end": 2,
+        "type": "PhysicalObject/MatterProcessingObject/ForceSeparatingObject"
+      },
+      {
+        "start": 2,
+        "end": 3,
+        "type": "Process/UndesirableProcess"
+      }
+    ],
+    "relations": [
+      {
+        "head": 2,
+        "tail": 1,
+        "type": "hasParticipant/hasAgent"
+      },
+      {
+        "head": 2,
+        "tail": 0,
+        "type": "hasParticipant/hasPatient"
+      }
+    ]
+  }
+]
