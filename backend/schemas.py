@@ -5,6 +5,9 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+MAX_DOWNTIME_MIN = 365 * 24 * 60
+
+
 class FailureType(str, Enum):
     belt_break = "belt_break"
     overheating = "overheating"
@@ -36,7 +39,7 @@ class Part(BaseModel):
 class Incident(BaseModel):
     equipment_id: Optional[str] = Field(None, description="id из справочника или null, если станок не назван")
     failure_type: FailureType
-    downtime_min: Optional[int] = Field(None, ge=0, le=24 * 60)
+    downtime_min: Optional[int] = Field(None, ge=0, le=MAX_DOWNTIME_MIN)
     downtime_quote: Optional[str] = Field(None, description="Дословный фрагмент текста про длительность простоя")
     parts: list[Part] = Field(default_factory=list)
     cause: Optional[str] = None
@@ -65,6 +68,14 @@ class Explanation(BaseModel):
 def kzt(v) -> str:
     """224000 -> '224 000' (неразрывный пробел не используем, чтобы текст было легко копировать)."""
     return "—" if v is None else f"{float(v):,.0f}".replace(",", " ")
+
+
+def loss_label(amount, known_parts=0) -> str:
+    if amount is not None:
+        return f"{kzt(amount)} ₸"
+    if known_parts:
+        return f"нет полной оценки · запчасти {kzt(known_parts)} ₸"
+    return "нет полной оценки"
 
 
 def num(v) -> str:

@@ -8,7 +8,7 @@ from datetime import date
 
 from . import analytics, db, diagnose, llm
 from .advisor import _numbers
-from .schemas import FAILURE_LABELS, BaseModel, Field, kzt
+from .schemas import FAILURE_LABELS, BaseModel, Field, loss_label
 
 BRIEF_PROMPT = """Ты помощник руководителя небольшого производства. По фактам ниже напиши короткую сводку дня.
 Факты: записи за сегодня, сигналы (повторяющиеся поломки с потерями), гипотезы причин с проверками и риски по аппаратам
@@ -18,7 +18,7 @@ BRIEF_PROMPT = """Ты помощник руководителя небольш�
 1. headline — одно предложение: главное за сегодня.
 2. points — 2–4 коротких пункта: что произошло и почему это важно. Опирайся только на факты.
 3. priorities — до 3 действий на сегодня, от важного к менее важному: equipment (название станка как в фактах) и action (что сделать/проверить).
-4. Используй только числа из фактов. Не придумывай станки, суммы, причины.
+4. Используй только числа из фактов. Не придумывай станки, суммы, причины. Значение null в потерях означает, что полной оценки нет.
 Верни JSON: {"headline":"...","points":["..."],"priorities":[{"equipment":"...","action":"..."}]}"""
 
 
@@ -36,10 +36,14 @@ class Brief(BaseModel):
 def today_records() -> list[dict]:
     today = date.today().isoformat()
     rows = [r for r in db.incidents() if r["occurred_at"][:10] == today]
-    return [{"id": r["id"], "time": r["occurred_at"][11:16], "equipment_id": r["equipment_id"], "equipment_name": r["equipment_name"],
-             "failure_type": r["failure_type"], "failure_label": FAILURE_LABELS.get(r["failure_type"], r["failure_type"]),
-             "downtime_min": r["downtime_min"], "loss_kzt": int(round(r["downtime_min"] / 60 * r["hour_cost_kzt"] + r["parts_cost_kzt"])),
-             "cause": r["cause"], "raw_text": r["raw_text"], "author": r.get("author_role") or "", "is_demo": bool(r["is_demo"])} for r in reversed(rows)]
+    records = []
+    for r in reversed(rows):
+        loss = analytics.estimate_loss(r["downtime_min"], r["hour_cost_kzt"], r["parts_cost_kzt"])
+        records.append({"id": r["id"], "time": r["occurred_at"][11:16], "equipment_id": r["equipment_id"], "equipment_name": r["equipment_name"],
+                        "failure_type": r["failure_type"], "failure_label": FAILURE_LABELS.get(r["failure_type"], r["failure_type"]),
+                        "downtime_min": r["downtime_min"], "loss_kzt": None if loss is None else round(loss), "parts_kzt": r["parts_cost_kzt"],
+                        "cause": r["cause"], "raw_text": r["raw_text"], "author": r.get("author_role") or "", "is_demo": bool(r["is_demo"])})
+    return records
 
 
 def today_summary() -> dict:
@@ -61,7 +65,8 @@ def today_summary() -> dict:
     return {
         "logs_today": logs_today, "incidents_today": len(recs), "records": recs,
         "downtime_h_today": round(sum(r["downtime_min"] for r in recs) / 60, 1),
-        "loss_today_kzt": sum(r["loss_kzt"] for r in recs),
+        "loss_today_kzt": analytics.sum_losses(r["loss_kzt"] for r in recs),
+        "parts_today_kzt": sum(r["parts_kzt"] or 0 for r in recs),
         "total_logs": total_logs, "history_since": (first or "")[:10], "per_day": per_day,
     }
 
@@ -76,7 +81,7 @@ def checklist(limit: int = 4) -> list[dict]:
         if top:
             h = top[0]
             items.append({"equipment_id": s["equipment_id"], "failure_type": s["failure_type"], "equipment_name": s["equipment_name"],
-                          "signal": s["title"], "loss_kzt": s["loss_kzt"], "severity": s["severity"], "cause": h["title"],
+                          "signal": s["title"], "loss_kzt": s["loss_kzt"], "parts_kzt": s["parts_kzt"], "severity": s["severity"], "cause": h["title"],
                           "why": h["why"], "checks": h["checks"]})
     return items
 
@@ -84,10 +89,10 @@ def checklist(limit: int = 4) -> list[dict]:
 def _template(summary: dict, checks: list[dict]) -> dict:
     if summary["incidents_today"]:
         head = (f"Сегодня записано инцидентов: {summary['incidents_today']}, простой {str(summary['downtime_h_today']).replace('.', ',')} ч, "
-                f"потери ≈ {kzt(summary['loss_today_kzt'])} ₸.")
+                f"потери: {loss_label(summary['loss_today_kzt'], summary['parts_today_kzt'])}.")
     else:
         head = "Сегодня новых инцидентов не записано."
-    points = [f"{c['equipment_name']}: {c['signal'].split(' · ')[-1].lower()}, потери за период ≈ {kzt(c['loss_kzt'])} ₸." for c in checks[:3]]
+    points = [f"{c['equipment_name']}: {c['signal'].split(' · ')[-1].lower()}, потери за период: {loss_label(c['loss_kzt'], c['parts_kzt'])}." for c in checks[:3]]
     prios = [{"equipment": c["equipment_name"], "action": f"Проверить: {c['cause'].lower()} — {c['checks'][0].lower()}"} for c in checks[:3]]
     return {"headline": head, "points": points, "priorities": prios}
 
@@ -95,9 +100,9 @@ def _template(summary: dict, checks: list[dict]) -> dict:
 def daily_brief() -> dict:
     summary, checks = today_summary(), checklist()
     facts = {
-        "today": [{k: r[k] for k in ("time", "equipment_name", "failure_label", "downtime_min", "loss_kzt", "cause")} for r in summary["records"]],
-        "today_totals": {k: summary[k] for k in ("incidents_today", "downtime_h_today", "loss_today_kzt")},
-        "signals": [{k: c[k] for k in ("equipment_name", "signal", "loss_kzt", "cause", "checks")} for c in checks],
+        "today": [{k: r[k] for k in ("time", "equipment_name", "failure_label", "downtime_min", "loss_kzt", "parts_kzt", "cause")} for r in summary["records"]],
+        "today_totals": {k: summary[k] for k in ("incidents_today", "downtime_h_today", "loss_today_kzt", "parts_today_kzt")},
+        "signals": [{k: c[k] for k in ("equipment_name", "signal", "loss_kzt", "parts_kzt", "cause", "checks")} for c in checks],
         "risks": [{k: h[k] for k in ("equipment_name", "risk", "health", "days_to_next", "loss_kzt", "explanation")}
                   for h in analytics.equipment_health() if h["risk"] != "low"][:5],
     }
@@ -105,7 +110,8 @@ def daily_brief() -> dict:
         out = llm.call_json(BRIEF_PROMPT, json.dumps(facts, ensure_ascii=False), Brief, "brief")
         allowed = _numbers(json.dumps(facts, ensure_ascii=False)) | {str(i) for i in range(0, 11)}
         for c in checks:
-            allowed |= {f"{round(c['loss_kzt'] / 1000):g}", f"{round(c['loss_kzt'], -3):g}"}
+            if (loss := c["loss_kzt"]) is not None:
+                allowed |= {f"{round(loss / 1000):g}", f"{round(loss, -3):g}"}
         names = {e["name"] for e in db.load_equipment()}
         text = " ".join([out.headline, *out.points, *(p.action for p in out.priorities)])
         bad = _numbers(text) - allowed

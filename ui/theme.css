@@ -181,6 +181,8 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .hero {text-align:center; padding:.6rem 0 0;}
 .hero h1 {font-size:4rem!important; max-width:900px; margin:0 auto 1rem!important;}
 .hero .intro {margin:0 auto 1rem; text-align:center;}
+.hero a.hero-action {display:inline-block; padding:10px 18px; border-radius:999px; background:#b94922; color:#fff; font-weight:700; text-decoration:none;}
+.hero a.hero-action:hover {background:#a33e1c;}
 .how {display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:6px 0 26px;}
 .how div {border-radius:24px; padding:22px; position:relative; box-shadow:0 14px 30px #2a2f4a12;}
 .how div::before {content:""; position:absolute; inset:8px; border:1.4px dashed #ffffffb5; border-radius:18px; pointer-events:none;}
@@ -234,7 +236,7 @@ html, body, .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp text
 .s-res {background:var(--mint);} .s-res .tc-top::before {background:#2f9f6b;}
 
 /* Extend the native open button's hit area to the card. */
-:is([class*="st-key-board-ticket-card-"], [class*="st-key-archive-card-"], [class*="st-key-archive-equipment-card-"]) {
+:is([class*="st-key-archive-card-"], [class*="st-key-archive-equipment-card-"]) {
   position:relative; border-radius:20px;
   & .stElementContainer:has(> .stButton), & .stButton {position:static;}
   & .stButton button:hover {transform:none;}

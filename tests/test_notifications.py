@@ -86,6 +86,16 @@ class NotificationTests(unittest.TestCase):
         self.assertEqual(len(service.tickets()), before)
         self.assertEqual(self.outbox(), [])
 
+    def test_manual_board_event_queues_mail_for_its_company(self):
+        account = service.start_workspace("Мой кабинет", "Насос")
+        service.use_company(account["company"]["id"])
+        admin = account["admin"]["id"]
+        service.save_notification_settings(admin, "owner@example.com", True)
+        event_id = service.add_workspace_event(admin, account["equipment_id"], "Насос остановился", datetime.now(), "other", 15)
+        messages = self.outbox()
+        self.assertEqual([(row["incident_id"], row["recipient"]) for row in messages], [(event_id, "owner@example.com")])
+        self.assertIn("15 мин", messages[0]["body"])
+
     def test_inspection_problems_and_remarks_notify_but_ok_does_not(self):
         self.subscribe()
         result = service.save_inspection([

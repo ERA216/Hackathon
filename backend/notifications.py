@@ -96,7 +96,8 @@ def queue_incidents(incident_ids: list[int], conn) -> None:
                            (incident_id, cid)).fetchone()
         if not row:
             continue
-        subject = f"FixList: новая заявка — {row['equipment_name']}"
+        equipment_name = " ".join(row["equipment_name"].split())
+        subject = f"FixList: новая заявка — {equipment_name}"
         body = (f"В компании «{row['company_name']}» зарегистрирована новая заявка #{row['id']}.\n\n"
                 f"Оборудование: {row['equipment_name']}\n"
                 f"Тип: {FAILURE_LABELS.get(row['failure_type'], row['failure_type'])}\n"

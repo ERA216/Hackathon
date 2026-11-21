@@ -68,6 +68,12 @@ CREATE TABLE IF NOT EXISTS company_sources (
     company_id INTEGER PRIMARY KEY REFERENCES companies(id), dataset TEXT NOT NULL,
     version TEXT NOT NULL, imported_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS company_equipment (
+    company_id INTEGER NOT NULL REFERENCES companies(id),
+    code TEXT NOT NULL,
+    equipment_id TEXT NOT NULL UNIQUE REFERENCES equipment(id),
+    PRIMARY KEY (company_id, code)
+);
 CREATE TABLE IF NOT EXISTS leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL, company_name TEXT NOT NULL,
     city TEXT, note TEXT, company_id INTEGER
@@ -182,7 +188,19 @@ def load_equipment() -> list[dict]:
     if source_profile():
         return [{"id": f"KEL{i:02d}", "name": f"Kelmarsh {i}", "line": "Ветропарк Kelmarsh", "hour_cost_kzt": None,
                  "aliases": [f"kelmarsh {i}", f"kel{i:02d}", f"турбина {i}", f"турбина №{i}"]} for i in range(1, 7)]
-    return json.loads((config.DATA_DIR / "equipment.json").read_text(encoding="utf-8"))
+    default = json.loads((config.DATA_DIR / "equipment.json").read_text(encoding="utf-8"))
+    company_id = current_company()
+    with connect() as c:
+        owned = c.execute("""SELECT e.id, ce.code, e.name, e.line, e.hour_cost_kzt
+                             FROM company_equipment ce JOIN equipment e ON e.id=ce.equipment_id
+                             WHERE ce.company_id=? ORDER BY ce.code""", (company_id,)).fetchall()
+        if not owned:
+            return default
+        used = {row[0] for row in c.execute("""SELECT equipment_id FROM incidents WHERE company_id=?
+                                              UNION SELECT equipment_id FROM inspections WHERE company_id=?
+                                              UNION SELECT equipment_id FROM applied_measures WHERE company_id=?""",
+                                           (company_id, company_id, company_id))}
+    return [{**row, "aliases": [row["name"]]} for row in owned] + [item for item in default if item["id"] in used]
 
 
 def source_profile(company_id=None) -> Optional[dict]:
@@ -204,26 +222,27 @@ def is_empty(path=None) -> bool:
         return c.execute("SELECT COUNT(*) FROM companies").fetchone()[0] == 0
 
 
-def add_shift_log(raw_text: str, status: str, mode: str, created_at: Optional[str] = None, is_demo: bool = False, conn=None, author: Optional[str] = None) -> int:
+def add_shift_log(raw_text: str, status: str, mode: str, created_at: Optional[str] = None, is_demo: bool = False, conn=None, author: Optional[str] = None, *, company_id: Optional[int] = None) -> int:
     sql = "INSERT INTO shift_logs(created_at, raw_text, status, mode, is_demo, author_role, company_id) VALUES (?,?,?,?,?,?,?)"
-    args = (created_at or now_iso(), raw_text, status, mode, int(is_demo), author or "Мастер смены", current_company())
+    args = (created_at or now_iso(), raw_text, status, mode, int(is_demo), author or "Мастер смены", company_id or current_company())
     if conn is not None:
         return conn.execute(sql, args).lastrowid
     with connect() as c:
         return c.execute(sql, args).lastrowid
 
 
-def add_incident(log_id: int, inc: dict, occurred_at: Optional[str] = None, is_demo: bool = False, conn=None) -> int:
+def add_incident(log_id: int, inc: dict, occurred_at: Optional[str] = None, is_demo: bool = False, conn=None, *, company_id: Optional[int] = None) -> int:
     parts = inc.get("parts") or []
     parts_cost = inc.get("parts_cost_kzt")
     if parts_cost is None:
         parts_cost = sum(part_price(p.get("name", "")) * int(p.get("qty", 1)) for p in parts)
     sql = """INSERT INTO incidents(log_id, occurred_at, equipment_id, failure_type, downtime_min, parts_cost_kzt,
              parts_json, cause, action, confidence, needs_review, is_demo, company_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+    company = company_id or current_company()
     args = (log_id, occurred_at or now_iso(), inc["equipment_id"], inc["failure_type"], int(inc["downtime_min"]),
             int(parts_cost), json.dumps(parts, ensure_ascii=False), inc.get("cause"), inc.get("action"),
-            inc.get("confidence"), int(bool(inc.get("needs_review"))), int(is_demo), current_company())
-    unknown_cost = not is_demo and inc.get("parts_cost_kzt") is None and bool(source_profile())
+            inc.get("confidence"), int(bool(inc.get("needs_review"))), int(is_demo), company)
+    unknown_cost = not is_demo and inc.get("parts_cost_kzt") is None and bool(source_profile(company))
     if conn is not None:
         incident_id = conn.execute(sql, args).lastrowid
         if unknown_cost:
@@ -236,7 +255,7 @@ def add_incident(log_id: int, inc: dict, occurred_at: Optional[str] = None, is_d
         return incident_id
 
 
-def incidents(equipment_id: Optional[str] = None) -> list[dict]:
+def incidents(equipment_id: Optional[str] = None, *, incident_id: Optional[int] = None) -> list[dict]:
     q = """SELECT i.*, s.raw_text, s.author_role, e.name AS equipment_name, e.hour_cost_kzt, e.hour_cost_known
            FROM incidents i JOIN shift_logs s ON s.id = i.log_id JOIN equipment e ON e.id = i.equipment_id
            WHERE i.company_id = ?"""
@@ -246,6 +265,9 @@ def incidents(equipment_id: Optional[str] = None) -> list[dict]:
     if equipment_id:
         q += " AND i.equipment_id = ?"
         args += (equipment_id,)
+    if incident_id is not None:
+        q += " AND i.id = ?"
+        args += (incident_id,)
     with connect() as c:
         rows = [dict(r) for r in c.execute(q + " ORDER BY i.occurred_at", args)]
     for r in rows:

@@ -1,8 +1,8 @@
 """Фасад для интерфейса: всё, что нужно экранам, в одном месте. UI вызывает только эти функции."""
 from typing import Optional
 
-from . import advisor, analytics, auth, briefing, config, db, extract, notifications, seed
-from .schemas import FAILURE_LABELS, FailureType
+from . import advisor, analytics, auth, briefing, config, data_import, db, extract, notifications, seed, workspace_data
+from .schemas import FAILURE_LABELS, MAX_DOWNTIME_MIN, FailureType
 
 
 def bootstrap() -> None:
@@ -21,8 +21,33 @@ def equipment_options() -> list[dict]:
     return db.load_equipment()
 
 
-def failure_options() -> dict:
-    if db.source_profile():
+def import_company_data(user_id: int, equipment_csv: bytes | None = None, events_csv: bytes | None = None) -> dict:
+    return data_import.import_company_data(user_id, equipment_csv, events_csv)
+
+
+def data_import_templates() -> tuple[bytes, bytes]:
+    return data_import.templates()
+
+
+def start_workspace_with_import(workspace_name, equipment_csv, events_csv=None):
+    return data_import.start_with_import(workspace_name, equipment_csv, events_csv)
+
+
+def start_workspace(workspace_name, name, code="", line="", hour_cost_kzt=0):
+    return workspace_data.start_workspace(workspace_name, name, code, line, hour_cost_kzt)
+
+
+def add_workspace_equipment(user_id, name, code="", line="", hour_cost_kzt=0):
+    return workspace_data.add_equipment(user_id, name, code, line, hour_cost_kzt)
+
+
+def add_workspace_event(user_id, equipment_id, description, occurred_at, failure_type, downtime_min=0, parts_cost_kzt=0, *, equipment_name=None):
+    return workspace_data.add_event(user_id, equipment_id, description, occurred_at, failure_type, downtime_min, parts_cost_kzt,
+                                    equipment_name=equipment_name)
+
+
+def failure_options(*, include_archive: bool = True) -> dict:
+    if include_archive and db.source_profile():
         from . import open_data
         return {"kelmarsh:" + row["code"]: open_data.message_ru(row) for row in open_data.events()} | {t.value: FAILURE_LABELS[t.value] for t in FailureType}
     return {t.value: FAILURE_LABELS[t.value] for t in FailureType}
@@ -47,8 +72,8 @@ def save_record(raw: str, drafts: list[dict], mode: str = "ai", author: Optional
             raise ValueError(f"Инцидент {i}: выберите станок из списка.")
         if d.get("failure_type") not in FAILURE_LABELS:
             raise ValueError(f"Инцидент {i}: выберите тип неисправности.")
-        if d.get("downtime_min") is None or int(d["downtime_min"]) < 0:
-            raise ValueError(f"Инцидент {i}: укажите простой в минутах.")
+        if d.get("downtime_min") is None or not 0 <= int(d["downtime_min"]) <= MAX_DOWNTIME_MIN:
+            raise ValueError(f"Инцидент {i}: укажите простой от 0 до {MAX_DOWNTIME_MIN} мин.")
     with db.connect() as c:
         log_id = db.add_shift_log(raw.strip(), "processed", mode, conn=c, author=author)
         ids = [db.add_incident(log_id, {**d, "parts_cost_kzt": d.get("parts_cost_kzt")}, conn=c) for d in drafts]
@@ -67,7 +92,8 @@ def dashboard() -> dict:
     summary = analytics.equipment_summary()
     return {
         "window_days": config.ANALYSIS_WINDOW_DAYS,
-        "total_loss_kzt": sum(r["loss_kzt"] for r in summary),
+        "total_loss_kzt": analytics.sum_losses(r["loss_kzt"] for r in summary),
+        "parts_kzt": sum(r["parts_kzt"] for r in summary),
         "total_downtime_h": round(sum(r["downtime_h"] for r in summary), 1),
         "by_equipment": summary,
         "anomalies": analytics.anomalies(),
@@ -163,6 +189,8 @@ def save_inspection(rows: list[dict], author: str) -> dict:
     for r in rows:
         if r["state"] not in ("ok", "remark", "problem"):
             raise ValueError("Неизвестное состояние.")
+        if not 0 <= int(r.get("downtime_min") or 0) <= MAX_DOWNTIME_MIN:
+            raise ValueError(f"Укажите простой от 0 до {MAX_DOWNTIME_MIN} мин.")
         if r["state"] != "ok" and not (r.get("note") or "").strip():
             raise ValueError(f"{eq[r['equipment_id']]['name']}: опишите замечание или проблему в комментарии.")
     cards = []
@@ -196,6 +224,7 @@ def equipment_health() -> list[dict]:
 
 def _ticket(r: dict) -> dict:
     return {"id": r["id"], "time": r["occurred_at"][:16].replace("T", " "), "equipment_id": r["equipment_id"], "equipment_name": r["equipment_name"],
+            "occurred_at": r["occurred_at"], "hour_cost_kzt": r["hour_cost_kzt"], "parts_cost_kzt": r["parts_cost_kzt"],
             "failure_type": r["failure_type"], "failure_label": FAILURE_LABELS.get(r["failure_type"], r["failure_type"]),
             "downtime_min": r["downtime_min"], "raw_text": r["raw_text"], "author": r.get("author_role") or "", "cause": r["cause"],
             "status": r.get("status") or "new", "status_label": db.STATUS_LABELS.get(r.get("status") or "new"), "assignee": r.get("assignee"),
@@ -204,7 +233,12 @@ def _ticket(r: dict) -> dict:
             "source_id": r.get("source_id"), "source_dataset": r.get("source_dataset"), "source_record": r.get("source_record")}
 
 
-def tickets(statuses: Optional[list[str]] = None, author: Optional[str] = None, limit: int = 100) -> list[dict]:
+def ticket(incident_id: int) -> dict | None:
+    rows = db.incidents(incident_id=incident_id)
+    return _ticket(rows[0]) if rows else None
+
+
+def tickets(statuses: Optional[list[str]] = None, author: Optional[str] = None, limit: int | None = 100) -> list[dict]:
     rows = [_ticket(r) for r in reversed(db.incidents())]
     if statuses:
         rows = [t for t in rows if t["status"] in statuses]
@@ -283,19 +317,12 @@ def archive_daily(day):
 
 
 def archive_record(incident_id):
-    return next((row for row in db.incidents() if row["id"] == incident_id), None)
+    rows = db.incidents(incident_id=incident_id)
+    return rows[0] if rows else None
 
 
 def login(company_code: str, login_: str, pin: str):
     return auth.login(company_code, login_, pin)
-
-
-def session_token(user_id: int) -> str:
-    return auth.make_token(user_id)
-
-
-def user_from_token(token: str):
-    return auth.user_from_token(token)
 
 
 def register_company(name: str, city: str = "", note: str = "") -> dict:

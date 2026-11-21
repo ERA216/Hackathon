@@ -5,6 +5,7 @@ from pathlib import Path
 import sqlite3
 import sys
 import tempfile
+from time import time
 import unittest
 from unittest.mock import patch
 
@@ -113,6 +114,7 @@ class PrimaryArchiveTests(unittest.TestCase):
         self.install()
         app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py"), default_timeout=25)
         app.session_state["user"] = service.login("FIXLIST", "boss", "1111")
+        app.session_state["session-expires-at"] = time() + 3600
         app.run()
         app.button(key="nav_Состояние оборудования").click().run()
         self.assertEqual(app.session_state["page"], "Состояние оборудования")

@@ -7,12 +7,12 @@ import json
 
 from . import analytics, briefing, config, db, llm
 from .advisor import _numbers
-from .schemas import BaseModel, Field, kzt
+from .schemas import BaseModel, Field, loss_label
 
 PROMPT = """Ты ИИ-аналитик сервиса FixList на производстве. Отвечай на вопрос пользователя по-русски, коротко и по делу (2–6 предложений или список).
 Используй ТОЛЬКО факты из базы ниже: состояние оборудования, убытки, прогнозы поломок, открытые заявки, сводку дня.
 Если ответа в фактах нет — так и скажи и подскажи, какие данные нужно записать при обходе.
-Числа — только из фактов. Не придумывай станки, суммы и даты. Если уместно — посоветуй, что сделать в первую очередь.
+Числа — только из фактов. Не придумывай станки, суммы и даты. Значение null в потерях означает, что полной оценки нет. Если уместно — посоветуй, что сделать в первую очередь.
 Верни JSON: {"answer": "...", "based_on": ["названия станков или номера заявок, на которые опирался"]}"""
 
 
@@ -26,12 +26,13 @@ def facts() -> dict:
     health = analytics.equipment_health()
     sm = briefing.today_summary()
     return {
-        "equipment": [{k: h[k] for k in ("equipment_name", "risk", "health", "failures", "downtime_h", "loss_kzt", "days_to_next", "explanation")} for h in health],
-        "total_loss_30d_kzt": sum(h["loss_kzt"] for h in health),
+        "equipment": [{k: h[k] for k in ("equipment_name", "risk", "health", "failures", "downtime_h", "loss_kzt", "parts_kzt", "days_to_next", "explanation")} for h in health],
+        "total_loss_30d_kzt": analytics.sum_losses(h["loss_kzt"] for h in health),
+        "parts_30d_kzt": sum(h["parts_kzt"] for h in health),
         "open_tickets": [{"id": t["id"], "equipment": t["equipment_name"], "status": t["status_label"], "text": t["raw_text"][:160],
                           "note": t.get("escalation_note")} for t in service.tickets(["new", "approved", "escalated"], limit=20)],
         "ticket_counts": service.ticket_counts(),
-        "today": {k: sm[k] for k in ("logs_today", "incidents_today", "downtime_h_today", "loss_today_kzt")},
+        "today": {k: sm[k] for k in ("logs_today", "incidents_today", "downtime_h_today", "loss_today_kzt", "parts_today_kzt")},
     }
 
 
@@ -42,8 +43,8 @@ def _rules_answer(question: str, f: dict) -> dict:
         e = hits[0]
         return {"answer": f"{e['equipment_name']}: здоровье {e['health']}%. {e['explanation'][:1].upper()}{e['explanation'][1:]}", "based_on": [e["equipment_name"]]}
     risky = [e for e in f["equipment"] if e["risk"] != "low"][:3]
-    lines = [f"Убыток от простоев за 30 дней ≈ {kzt(f['total_loss_30d_kzt'])} ₸. Открытых заявок: {len(f['open_tickets'])}."]
-    lines += [f"• {e['equipment_name']} — здоровье {e['health']}%, убыток {kzt(e['loss_kzt'])} ₸" for e in risky]
+    lines = [f"Потери за 30 дней: {loss_label(f['total_loss_30d_kzt'], f['parts_30d_kzt'])}. Открытых заявок: {len(f['open_tickets'])}."]
+    lines += [f"• {e['equipment_name']} — здоровье {e['health']}%, потери: {loss_label(e['loss_kzt'], e['parts_kzt'])}" for e in risky]
     return {"answer": "\n".join(lines), "based_on": [e["equipment_name"] for e in risky]}
 
 
@@ -58,7 +59,8 @@ def ask(question: str, history: list[dict] | None = None) -> dict:
         out = llm.call_json(PROMPT, user, Answer, "assistant")
         allowed = _numbers(json.dumps(f, ensure_ascii=False)) | {str(i) for i in range(0, 31)}
         for e in f["equipment"]:
-            allowed |= {f"{round(e['loss_kzt'] / 1000):g}", f"{round(e['loss_kzt'], -3):g}"}
+            if (loss := e["loss_kzt"]) is not None:
+                allowed |= {f"{round(loss / 1000):g}", f"{round(loss, -3):g}"}
         bad = _numbers(out.answer) - allowed
         if bad:
             r = _rules_answer(question, f)

@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from backend import service
+from ui import sessions
 from ui.charts import _render
 from ui.open_data import _kelmarsh, _maintie, _sources, duration, interval_label, number, timestamp
 from ui.theme import card, heading
@@ -30,6 +31,15 @@ def _metrics(items):
                 card(label, str(value), note)
 
 
+def _money_panel(first, second, note, period, *, compact=False):
+    title = "" if compact else f'<div class="archive-money-heading">Денежный эффект <span>{html.escape(period)}</span></div>'
+    return (f'<section class="archive-money{" archive-money-compact" if compact else ""}" aria-label="Расчётный финансовый эффект">'
+            + title + '<div class="archive-money-values"><div>'
+            f'<span>{html.escape(first[0])}</span><strong>{html.escape(first[1])}</strong></div>'
+            f'<div class="archive-money-saving"><span>{html.escape(second[0])}</span><strong>{html.escape(second[1])}</strong></div>'
+            f'</div><p>{html.escape(note)}</p></section>')
+
+
 def _money_estimate(hours, period="за это событие", *, compact=False):
     """Illustrative economics, kept separate from the archive's unknown costs."""
     hourly_rate = 50_000
@@ -42,75 +52,95 @@ def _money_estimate(hours, period="за это событие", *, compact=False
         rounded = round(value / 100) * 100 if value >= 100 else round(value)
         return number(rounded) + " ₸"
 
-    heading = "" if compact else f'<div class="archive-money-heading">Денежный эффект <span>{html.escape(period)}</span></div>'
-    period_note = html.escape(period.capitalize()) + ". " if compact else ""
-    return (
-        f'<section class="archive-money{" archive-money-compact" if compact else ""}" aria-label="Расчётный финансовый эффект">'
-        + heading +
-        '<div class="archive-money-values"><div><span>Потери · оценка</span>'
-        f'<strong>≈ {amount(loss)}</strong></div><div class="archive-money-saving"><span>Потенциал экономии</span>'
-        f'<strong>≈ {amount(loss * reduction)}</strong></div></div>'
-        f'<p>{period_note}Пример: 50 000 ₸/ч · сокращение простоя на 20%. '
-        'Расчётный сценарий, не фактические расходы или достигнутая экономия.</p></section>'
-    )
+    note = (period.capitalize() + ". " if compact else "") + (
+        "Пример: 50 000 ₸/ч · сокращение простоя на 20%. "
+        "Расчётный сценарий, не фактические расходы или достигнутая экономия.")
+    return _money_panel(("Потери · оценка", f"≈ {amount(loss)}"), ("Потенциал экономии", f"≈ {amount(loss * reduction)}"),
+                        note, period, compact=compact)
 
 
-def _event_card(row, admin_name):
+def _event_money(row, *, compact=False):
+    source = row["source_record"]
+    if source:
+        return _money_estimate(source["duration_seconds"] / 3600, compact=compact)
+    tariff = row["hour_cost_kzt"]
+    parts = row["parts_cost_kzt"]
+    loss = row["downtime_min"] / 60 * (tariff or 0) if tariff or not row["downtime_min"] else None
+    loss_label = "—" if loss is None else f"≈ {number(loss)} ₸"
+    parts_label = "—" if parts is None else f"{number(parts)} ₸"
+    if tariff:
+        note = f"Простой рассчитан по тарифу {number(tariff)} ₸/ч."
+    else:
+        note = "Тариф простоя не задан." if loss is None else "Простоя не было."
+    return _money_panel(("Простой · оценка", loss_label), ("Запчасти · по записи", parts_label), note, "за это событие", compact=compact)
+
+
+def _event_card(row, open_event):
     source = row.get("source_record")
     state = row["status"] if row["status"] in {"archived", "new", "approved", "escalated", "resolved"} else "archived"
-    started = datetime.fromisoformat(source["started_at"] if source else row["time"])
+    started = datetime.fromisoformat(source["started_at"] if source else row["occurred_at"])
     seconds = source["duration_seconds"] if source else row["downtime_min"] * 60
     elapsed = duration(seconds)
-    label = row["failure_label"] if source else row["raw_text"]
-    reference = "Код " + source["code"] if source else "Запись сотрудника"
+    text = " ".join(row["raw_text"].split())
+    label = row["failure_label"] if source else text[:150] + ("…" if len(text) > 150 else "")
+    origin = "SCADA · Код " + source["code"] if source else ("CSV" if row["source_id"] else "FIXLIST")
     with st.container(key=f'archive-card-{row["id"]}'):
         st.markdown(
             f'<article class="archive-ticket archive-state-{state}">'
             f'<div class="archive-ticket-top"><span class="archive-status">{html.escape(row["status_label"])}</span>'
-            f'<span class="archive-origin">{"SCADA · " + html.escape(reference) if source else "FIXLIST"}</span></div>'
+            f'<span class="archive-origin">{html.escape(origin)}</span></div>'
             f'<h3>{html.escape(row["equipment_name"])}</h3>'
             f'<p class="archive-ticket-description">{html.escape(label)}</p>'
             '<div class="archive-ticket-facts"><div><span>Длительность остановки</span>'
             f'<strong>{html.escape(elapsed)}</strong></div><div><span>{"Начало · UTC" if source else "Дата записи"}</span>'
             f'<strong>{started:%d.%m.%Y} · {started:%H:%M:%S}</strong></div></div>'
-            + (f'<div class="archive-ticket-reference">{html.escape(reference)}</div>' if not source else "")
-            + _money_estimate(seconds / 3600, compact=True) + '</article>', unsafe_allow_html=True)
+            + _event_money(row, compact=True) + '</article>', unsafe_allow_html=True)
         if st.button("Открыть карточку →", key=f'archive-open-{row["id"]}', use_container_width=True):
-            event_dialog(row["id"], admin_name)
+            open_event(row["id"])
 
 
-def _event_grid(rows, admin_name):
+def event_grid(rows, open_event):
     with st.container(key="archive-event-grid"):
         for offset in range(0, len(rows), 3):
             columns = st.columns(3, gap="medium")
             for column, row in zip(columns, rows[offset:offset + 3]):
                 with column:
-                    _event_card(row, admin_name)
+                    _event_card(row, open_event)
 
 
-@st.dialog("Событие оборудования", width="large")
-def event_dialog(incident_id, admin_name):
-    record = service.archive_record(incident_id)
-    if not record:
-        st.error("Запись не найдена.")
-        return
-    source = record.get("source_record")
+def render_event_details(row):
+    source = row["source_record"]
+    origin = "АРХИВ 2016" if source else ("CSV" if row["source_id"] else "FIXLIST")
+    st.markdown(f'<div class="archive-detail-header"><span>СОБЫТИЕ ОБОРУДОВАНИЯ · {origin}</span>'
+                f'<h3>{html.escape(row["equipment_name"])}</h3><p>{html.escape(row["failure_label"])}</p></div>', unsafe_allow_html=True)
     if source:
-        ticket = next(item for item in service.tickets(limit=10000) if item["id"] == incident_id)
-        st.markdown('<div class="archive-detail-header"><span>СОБЫТИЕ ОБОРУДОВАНИЯ · АРХИВ 2016</span>'
-                    f'<h3>{html.escape(record["equipment_name"])}</h3><p>{html.escape(ticket["failure_label"])}</p></div>', unsafe_allow_html=True)
         facts = [("Начало · UTC", timestamp(source["started_at"])), ("Окончание · UTC", timestamp(source["ended_at"])),
                  ("Длительность", duration(source["duration_seconds"])), ("Исходный код", source["code"])]
-        st.markdown('<dl class="archive-detail-facts">' + "".join(f'<div><dt>{html.escape(name)}</dt><dd>{html.escape(value)}</dd></div>' for name, value in facts) + '</dl>', unsafe_allow_html=True)
-        st.markdown(_money_estimate(source["duration_seconds"] / 3600), unsafe_allow_html=True)
+    else:
+        reference = ("Номер события в CSV", row["source_id"]) if row["source_id"] else ("Кто внёс", row["author"] or "—")
+        facts = [("Дата и время", timestamp(row["occurred_at"])), ("Длительность", duration(row["downtime_min"] * 60)),
+                 ("Статус", row["status_label"]), reference]
+    st.markdown('<dl class="archive-detail-facts">' + "".join(f'<div><dt>{html.escape(name)}</dt><dd>{html.escape(value)}</dd></div>' for name, value in facts) + '</dl>', unsafe_allow_html=True)
+    st.markdown(_event_money(row), unsafe_allow_html=True)
+    if source:
         st.caption("Состояние ремонта и расходы в источнике не указаны. Результат проверки можно добавить в FixList.")
         with st.expander("Первоисточник и технические сведения"):
             st.write(source["message"])
             st.caption(f'ID: {source["id"]} · {source["source_file"]}, строка {source["source_row"]}')
             st.json(source)
     else:
-        st.subheader(record["equipment_name"])
-        st.write(record["raw_text"])
+        with st.expander("Исходная запись", expanded=True):
+            st.text(row["raw_text"])
+
+
+@st.dialog("Событие оборудования", width="large")
+def event_dialog(incident_id, admin_name):
+    service.use_company(sessions.require_user()["company_id"])
+    record = service.ticket(incident_id)
+    if not record:
+        st.error("Запись не найдена.")
+        return
+    render_event_details(record)
     status = record["status"]
     if status == "archived":
         if st.button("Создать задачу по проверке сигнала", type="primary", key="archive-create-task"):
@@ -135,8 +165,9 @@ def event_dialog(incident_id, admin_name):
         st.caption("Дата записи результата: " + (record.get("resolved_at") or "—"))
 
 
-def board(user):
+def board(user, add_data):
     heading("01 / Панель задач", "Сигналы записаны.\nПроверки под контролем.", "Реальные остановки оборудования Kelmarsh. Откройте исходное событие и создайте задачу по его проверке.")
+    add_data()
     counts = service.ticket_counts()
     _metrics([("Событий в архиве", len(service.archive_report()["rows"]), "Исходные записи Kelmarsh"),
               ("Новых задач", counts["new"], "Проверки, созданные в FixList"),
@@ -154,7 +185,7 @@ def board(user):
         st.session_state["archive-board-page"] = 1
     page = st.number_input("Страница", min_value=1, max_value=pages, value=1, step=1, key="archive-board-page")
     st.caption(f"Найдено: {len(rows)} · страница {page} из {pages} · сначала новые события")
-    _event_grid(rows[(page - 1) * 12:page * 12], user["display_name"])
+    event_grid(rows[(page - 1) * 12:page * 12], lambda incident_id: event_dialog(incident_id, user["display_name"]))
 
 
 def health():
@@ -206,7 +237,8 @@ def daily():
         st.subheader("События выбранного дня")
         st.caption("Карточка показывает полную длительность исходного события; в сводке выше учитывается только часть внутри выбранных суток.")
         tickets = {row["id"]: row for row in service.tickets(limit=10000)}
-        _event_grid([tickets[row["incident_id"]] for row in view["rows"]], st.session_state["user"]["display_name"])
+        event_grid([tickets[row["incident_id"]] for row in view["rows"]],
+                   lambda incident_id: event_dialog(incident_id, st.session_state["user"]["display_name"]))
     else:
         st.info("В этот день в выбранном архиве остановок этой категории нет.")
 
